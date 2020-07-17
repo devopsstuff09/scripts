@@ -1,0 +1,765 @@
+         import com.jiff.stdlib.Environments
+            import com.jiff.stdlib.UrlHelpers
+            import com.jiff.stdlib.Services
+            import com.jiff.stdlib.ServiceDefinitions
+
+            def nodeCluster = "datacenter"
+            def opsCloud = Environments.getEnvironment(params.ENV).opsEnv().opsCloud(nodeCluster)
+
+            println("no lock required");
+            node("${opsCloud}&&default") {
+                
+                
+                
+            def paramEnvObj = Environments.getEnvironment(params.ENV)
+            def paramEnvChannels = []
+            
+            for (n in paramEnvObj.getNotificationParams()) {
+                if (n["type"] == "slack") {
+                    paramEnvChannels << n["params"]["channel"]
+                }
+            }
+            
+            slackNotifier(paramEnvChannels, "all", null) {
+            stage("Prepare") {
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  
+            updateParamBadge()
+        
+} // if
+} // stage
+
+envName = null
+envCharts = null
+envKopsStateStore = null
+envOverrideBranch = null
+envProtected = null
+envHA = null
+envEnvPrivateDomain = null
+envEnvIACDomain = null
+envcpuDownScalingFactor = null
+println("// null //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  envName = params.ENV
+  
+            def envObj = Environments.getEnvironment(envName)
+            boolean canOverrideBranch = envObj.canOverrideBranch()
+            boolean isProtected = envObj.isProtected()
+            boolean isHA = envObj.isHA()
+            def envPrivateDomain = envObj.privateDomain('datacenter', env)
+            def envIACDomain = envObj.iacDomain('datacenter', env)
+            def cpuDownScalingFactor = envObj.cpuDownScalingFactor()
+            
+            def charts = envObj.getChartVersions()
+            def kopsStateStore = envObj.getKopsStateStore()
+
+            // override AWS charts since they can be different
+            if ('datacenter' == 'aws') {
+                envObj.getAWSChartVersions().each { chart, version ->
+                    charts[chart] = version
+                }
+            }
+             
+            // Check user's access to the given environment
+            roles.validate(envObj, currentBuild)
+
+            envObj = null
+            
+  envCharts = charts
+  envKopsStateStore = kopsStateStore
+  envOverrideBranch = canOverrideBranch
+  envProtected = isProtected
+  envHA = isHA
+  envEnvPrivateDomain = envPrivateDomain
+  envEnvIACDomain = envIACDomain
+  envcpuDownScalingFactor = cpuDownScalingFactor
+} // if
+
+managed_serviceDefinition = null
+managedServiceName = null
+managedServiceGit = null
+managedServiceDocker = null
+managedServiceDockerName = null
+managedServiceCluster = null
+managedServiceDefaultBranch = null
+managedServiceGithubProjectUrl = null
+managedServiceWikiName = null
+managedServiceWikiProject = null
+managedServiceTeam = null
+println("// null //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  managed_serviceDefinition = ServiceDefinitions.getDefinition("predictor-service")
+  managedServiceName = managed_serviceDefinition.name
+  managedServiceGit = managed_serviceDefinition.git
+  managedServiceDocker = managed_serviceDefinition.docker
+  managedServiceDockerName = managed_serviceDefinition.dockerName
+  managedServiceCluster = managed_serviceDefinition.cluster
+  managedServiceDefaultBranch = managed_serviceDefinition.defaultBranch
+  managedServiceGithubProjectUrl = managed_serviceDefinition.githubProjectUrl
+  managedServiceWikiName = managed_serviceDefinition.wikiName
+  managedServiceWikiProject = managed_serviceDefinition.wikiProject
+  managedServiceTeam = managed_serviceDefinition.team
+} // if
+
+serviceDockerRegistryUrl = null
+serviceDockerBaseImageDockerRegistryUrl = null
+println("// null //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  serviceDockerRegistryUrl = managedServiceDocker
+  serviceDockerBaseImageDockerRegistryUrl = UrlHelpers.getBaseImageDockerRegistryUrl(managedServiceDocker)
+} // if
+
+pythonDockerRegistryUrl = null
+pythonDockerBaseImageDockerRegistryUrl = null
+println("// null //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  pythonDockerRegistryUrl = "ops.artifactory.jiff.ops/jiff/python"
+  pythonDockerBaseImageDockerRegistryUrl = UrlHelpers.getBaseImageDockerRegistryUrl("ops.artifactory.jiff.ops/jiff/python")
+} // if
+
+serviceParams = null
+deployableBranch = null
+serviceStatus = null
+envVars = null
+println("// Get Service Variable //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  
+                 def serviceObject = Services.getService("predictor-service")
+                 def serviceEnv = params.ENV
+                 def serviceName = "predictor-service"
+                 if (serviceObject == null) {
+                      error("Service '${serviceName}' not found in deploy-environment repo for '${serviceEnv}' environment")
+                 }
+
+                 def serviceObjectParams = [:]
+                 def serviceObjectStatus = [:]
+                 def serviceDeployableBranch = null
+                 if (serviceObject) {
+                    serviceObjectParams = serviceObject.getEnvParams(params.ENV)
+                    serviceDeployableBranch = serviceObject.getDeployableBranchForEnv(params.ENV)
+                    serviceObjectStatus = serviceObject.getEnvStatus(params.ENV)
+                    serviceObjectEnvVars = serviceObject.getEnvVars(params.ENV)
+                }
+                
+  serviceParams = serviceObjectParams
+  deployableBranch = serviceDeployableBranch
+  serviceStatus = serviceObjectStatus
+  envVars = serviceObjectEnvVars
+} // if
+
+println("// Run set_default_approved_branch //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  
+                    if(!params.BRANCH || params.BRANCH == '') {
+                        replaceParam('params.BRANCH', deployableBranch)
+                    }
+                
+} // if
+
+println("// Run set_default_branch //")
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  
+                    if(!params.BRANCH || params.BRANCH == '') {
+                        replaceParam('params.BRANCH', managedServiceDefaultBranch)
+                    }
+                
+} // if
+
+ValidateStdout = null
+stage("Run Validate") {
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  withEnv(["ENVIRONMENT=" + params.ENV, "ENV_PROTECTED=" + envProtected, "ENV_ALLOW_OVERRIDE=" + envOverrideBranch, "BRANCH_NAME=" + params.BRANCH, "APRROVED_BRANCH_NAME=" + serviceParams.branch]) {
+  try {
+  def cmd = """test "\$APRROVED_BRANCH_NAME" = "null" && { echo "predictor-service on \$ENVIRONMENT is not currently managed by deploy-environment repo. Please add it to the repo."; exit 1; }
+
+if [ "\$ENV_PROTECTED" == "true" ] || [ "\${ENV_ALLOW_OVERRIDE}" != "true" ] ; then
+  # matches fnmatch style branch names (eg. 'releases-*')
+  fnmatch () { case "\$2" in \$1) return 0 ;; *) return 1 ;; esac ; }
+
+  export IFS="|"
+  for branchMatch in \${APRROVED_BRANCH_NAME}; do
+    if fnmatch "\${branchMatch}" "\${BRANCH_NAME}" ; then
+      exit 0
+    fi
+  done
+
+  echo "predictor-service on \$ENVIRONMENT is managed by deploy-environment repo. Only '\$APRROVED_BRANCH_NAME' is allowed to be deployed."
+  exit 1
+fi
+"""
+  ValidateStdout = sh(returnStdout: true, script: cmd).trim()
+  echo ValidateStdout
+  } finally {
+  }
+  } // withEnv
+} // if
+} // stage
+
+serviceGitCommit = null
+serviceGitBranch = null
+serviceGitBranchWithSha = null
+serviceGitDockerBranch = null
+serviceGitDockerBranchWithSha = null
+stage("Git checkout") {
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+dir("service_git") {
+  
+                                try {
+                                    checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: managedServiceGit]], branches: [[name: 'refs/remotes/origin/' + params.BRANCH]]], changelog: true, poll: false
+                                } catch (err) {
+                                    try {
+                                        checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: managedServiceGit]], branches: [[name: 'refs/tags/' + params.BRANCH]]], changelog: true, poll: false
+                                    }
+                                    catch (err1) {
+                                        throw new Exception("Unable to find branch or tag named: '" + params.BRANCH +  "'")
+                                    }
+                                }                                           
+                                    
+  sh('git submodule update --init --remote || true')
+  serviceGitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().substring(0,7)
+  serviceGitBranch = params.BRANCH
+  serviceGitBranchWithSha = serviceGitBranch + "-" + serviceGitCommit
+  serviceGitDockerBranch = params.BRANCH.replaceAll('/', '-')
+  serviceGitDockerBranchWithSha = serviceGitDockerBranch + "-" + serviceGitCommit.replaceAll('/', '-')
+  
+                                   if(sh(returnStdout: true, script: 'git tag -l ' + params.BRANCH).trim() == params.BRANCH || params.BRANCH.startsWith("release")) 
+                                   {
+                                     serviceGitBranchWithSha = params.BRANCH
+
+                                     if(serviceGitDockerBranch.endsWith(serviceGitCommit)) {
+                                        serviceGitDockerBranchWithSha = serviceGitDockerBranch
+                                     }
+                                   }
+                                
+} // dir
+} // if
+} // stage
+
+stage("Git tagWithSha") {
+if ((true == true || true == 'true') && !(true == true || true == 'true' )) {
+dir("service_git") {
+  
+                                       if(sh(returnStdout: true, script: 'git tag -l ' + serviceGitBranchWithSha).trim() != serviceGitBranchWithSha && !serviceGitBranchWithSha.startsWith("release"))
+                                       {
+                                         sh('git tag ' + serviceGitBranchWithSha)
+                                         sh('git push --tags')
+                                       }
+                                    
+} // dir
+} // if
+} // stage
+
+println("// Run replace_branch //")
+if ((true == true || true == 'true') && !(true == true || true == 'true' )) {
+  
+                        replaceParam('params.BRANCH', serviceGitBranchWithSha)
+                
+} // if
+
+skipBuildStdout = null
+stage("Run skip_build") {
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  withEnv(["HELM_REVISION=" + serviceStatus.deployedBranchWithSha, "GIT_REVISION=" + serviceGitDockerBranchWithSha]) {
+  try {
+  def cmd = "[[ \"\$GIT_REVISION\" = \"\$HELM_REVISION\" && \"\$FORCE_BUILD\" != \"true\" ]] && echo true || echo false"
+  skipBuildStdout = sh(returnStdout: true, script: cmd).trim()
+  echo skipBuildStdout
+  } finally {
+  }
+  } // withEnv
+} // if
+} // stage
+
+skipDeployStdout = null
+stage("Run skip_deploy") {
+if ((true == true || true == 'true') && !(false == true || false == 'true' )) {
+  withEnv(["SKIP_BUILD=" + skipBuildStdout]) {
+  try {
+  def cmd = "[[ \"\$SKIP_BUILD\" = \"false\" || \"\$FORCE_BUILD\" = \"true\" || \"\$FORCE_RESTART\" = \"true\" || \"\$REINSTALL\" = \"true\" ]] && echo false || echo true"
+  skipDeployStdout = sh(returnStdout: true, script: cmd).trim()
+  echo skipDeployStdout
+  } finally {
+  }
+  } // withEnv
+} // if
+} // stage
+
+  lock("auto-"+managedServiceName+"-"+serviceGitCommit) {
+
+mustBuildImageStdout = null
+stage("Run must_build_image") {
+if ((true == true || true == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+  withEnv(["FORCE_BUILD=" + params.FORCE_BUILD, "TAG=" + serviceGitDockerBranchWithSha, "REGISTRY_ADDRESS=" + serviceDockerRegistryUrl]) {
+dir("service_git") {
+  try {
+  def cmd = """if [ "\$FORCE_BUILD" = "true" ] || ! DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect \$REGISTRY_ADDRESS:\$TAG > /dev/null ; then
+  echo true
+else
+  echo false
+fi
+"""
+  mustBuildImageStdout = sh(returnStdout: true, script: cmd).trim()
+  echo mustBuildImageStdout
+  } finally {
+  }
+} // dir
+  } // withEnv
+} // if
+} // stage
+
+dockerComposeBuildYmlStdout = null
+stage("Run docker_compose_build_yml") {
+if ((mustBuildImageStdout == true || mustBuildImageStdout == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+dir("service_git") {
+  try {
+  def cmd = "[[ -f docker-compose.build.yml ]] && echo true || echo false"
+  dockerComposeBuildYmlStdout = sh(returnStdout: true, script: cmd).trim()
+  echo dockerComposeBuildYmlStdout
+  } finally {
+  }
+} // dir
+} // if
+} // stage
+
+dockerComposeBuildStdout = null
+stage("Run docker_compose_build") {
+if (((((mustBuildImageStdout == "true")) && ((dockerComposeBuildYmlStdout == "true"))) == true || (((mustBuildImageStdout == "true")) && ((dockerComposeBuildYmlStdout == "true"))) == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+  withEnv(["SERVICE_NAME=" + managedServiceDockerName, "ARTIFACTORY_URL=" + managedServiceCluster.artifactoryUrl, "GIT_SHA=" + serviceGitCommit, "REVISION=" + serviceGitDockerBranchWithSha, "BASE_IMAGE_DOCKER_REGISTRY=" + managedServiceCluster.baseImageDockerRegistryUrl]) {
+dir("service_git") {
+  withCredentials([usernamePassword(credentialsId: managedServiceCluster.artifactoryCredentialId, usernameVariable: "ARTIFACTORY_USERNAME", passwordVariable: "ARTIFACTORY_PASSWORD")]) {
+  try {
+  def cmd = "docker-compose -f docker-compose.build.yml up --build --force-recreate --abort-on-container-exit --exit-code-from build --no-color build |tee /dev/stderr"
+  cmd = "set -eo pipefail\n\n" + cmd
+  dockerComposeBuildStdout = sh(returnStdout: true, script: cmd).trim()
+  echo dockerComposeBuildStdout
+  } finally {
+  }
+  }
+} // dir
+  } // withEnv
+} // if
+} // stage
+
+stage("Docker build") {
+if ((mustBuildImageStdout == true || mustBuildImageStdout == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+dir("service_git") {
+  
+            def registry = UrlHelpers.getDockerRegistryUrl(managedServiceDocker)
+            def imageName = UrlHelpers.getDockerImage(managedServiceDocker)
+
+            assert [tag:serviceGitDockerBranchWithSha, dockerfile:"Dockerfile", url:managedServiceDocker, skip_cache:true, build_args:[REVISION:serviceGitDockerBranchWithSha, GIT_SHA:serviceGitCommit, SERVICE_NAME:managedServiceDockerName, ARTIFACTORY_URL:managedServiceCluster.artifactoryUrl, BASE_IMAGE_DOCKER_REGISTRY:managedServiceCluster.baseImageDockerRegistryUrl], additional_build_args:null, dir:"service_git"]
+            assert managedServiceDocker
+            def credentials = null
+            if (managedServiceDocker ==~ /.*artifactory\.jiff\.ops.*/) {
+                credentials = "artifactory"
+            } else if (managedServiceDocker ==~ /.*artifactory\.castlighthealth\.com.*/) {
+                credentials = "artifactory-denver"
+            }
+        
+  docker.withRegistry(registry) {
+  
+                            def tag = serviceGitDockerBranchWithSha
+                            def dockerfileName = "Dockerfile"
+
+                            def buildArgs = [REVISION:serviceGitDockerBranchWithSha, GIT_SHA:serviceGitCommit, SERVICE_NAME:managedServiceDockerName, ARTIFACTORY_URL:managedServiceCluster.artifactoryUrl, BASE_IMAGE_DOCKER_REGISTRY:managedServiceCluster.baseImageDockerRegistryUrl].collect { k, v -> "--build-arg ${k}='${v}'" }.join(" ")
+                            def skip_cache = true
+
+                            def caches = []
+                            def fromCache = ""
+                            def dockerfile = readFile(dockerfileName)
+                            def builders = jiff.extractBuildersFromDockerfile(dockerfile)
+
+                            def builderNames = []
+                            
+                            // Ensure the Dockerfile, .git and .dockerignore are the dockerignore otherwise there will be frequent rebuilds when 'COPY . .' is used
+                            sh("echo 'Dockerfile' >> .dockerignore")
+                            sh("echo '.dockerignore' >> .dockerignore")
+
+                            // build each builder step and tag it
+                            for (builder in builders) {
+                                def builderImageTag = "${imageName}-${builder["name"]}:${tag}"
+                                def builderImageLatestTag = "${imageName}-${builder["name"]}:latest"
+                                def builderImageLatestUrl = managedServiceDocker + "-${builder["name"]}:latest"
+                                def builderImageUrl = managedServiceDocker + "-${builder["name"]}:${tag}"
+                                
+                                def builderImage = docker.image(builderImageTag)
+
+                                try {
+                                    try {
+                                        builderImage.pull()
+                                        
+                                        fromCache = "--cache-from ${builderImageUrl}"
+                                    } catch (Exception e) {
+                                        if (!skip_cache) {
+                                            // Lets try to get latest instead so there is something to use as cache.
+                                            // Don't overwrite builderImage because it will fail later if there isn't a latest.
+                                            def builderImageLatest = docker.image(builderImageLatestTag)
+                                            builderImageLatest.pull()
+                                            
+                                            fromCache = "--cache-from ${builderImageLatestUrl}"
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                   // ignore these errors
+                                   fromCache = ""
+                                }
+                                
+                                // HACK: generate Dockerfile up to but not including the next FROM due to docker-workflow-plugin bug related to getting Id of last FROM
+                                writeFile(file: "Dockerfile", text: builder["dockerfile"])
+
+                                // specify target in the build so it will only build and tag that builder image
+                                docker.build(builderImageTag, "${buildArgs} ${caches.join(' ')} ${fromCache} .")
+                                builderImage.tag(tag)
+
+                                // IMPORTANT: append tags in reverse order or COPY --from doesn't use cache.
+                                caches = ["--cache-from ${builderImageTag}"] + caches
+
+                                builderNames << builder["name"]
+                            }
+
+                            def imageTag = "${imageName}:${tag}"
+                            def imageLatestTag = "${imageName}:latest"
+                            def imageLatestUrl = managedServiceDocker + ":latest"
+                            def imageUrl = managedServiceDocker + ":${tag}"
+ 
+                            def image = docker.image(imageTag)
+
+                            try {
+                                try {
+                                    image.pull()
+                                    
+                                    fromCache = "--cache-from ${imageUrl}"
+                                } catch (Exception e) {
+                                    if (!skip_cache) {
+                                        // lets try to get something
+                                        latestImage = docker.image(imageLatestTag)
+                                        latestImage.pull()
+                                    
+                                        fromCache = "--cache-from ${imageLatestUrl}"
+                                    }
+                                }
+                            } catch (Exception e) {
+                               // ignore these errors
+                               fromCache = ""
+                            }
+
+                            // save images to workdir so we can push them all later
+                            writeFile file: "../builders.txt", text: builderNames.join("\n")
+
+                            println caches.join(' ')
+                            // build final product
+                            writeFile(file: "Dockerfile", text: dockerfile)
+
+                            // IMPORTANT: append cache-from in reverse order or COPY --from doesn't use cache.
+                            docker.build("${imageName}:${tag}", "${buildArgs} ${caches.join(' ')} ${fromCache} .")
+                            image.tag(tag)
+
+                            
+  } // docker.withRegistry
+} // dir
+} // if
+} // stage
+
+getVersionStdout = null
+stage("Run get_version") {
+if ((true == true || true == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+dir("service_git") {
+  try {
+  def cmd = """if [ -f VERSION ]; then
+  cat VERSION
+fi
+"""
+  getVersionStdout = sh(returnStdout: true, script: cmd).trim()
+  echo getVersionStdout
+  } finally {
+  }
+} // dir
+} // if
+} // stage
+
+stage("Docker push") {
+if ((mustBuildImageStdout == true || mustBuildImageStdout == 'true') && !(skipBuildStdout == true || skipBuildStdout == 'true' )) {
+  
+            def registry = UrlHelpers.getDockerRegistryUrl(managedServiceDocker)
+            def imageName = UrlHelpers.getDockerImage(managedServiceDocker)
+
+            assert [tag:"latest", dockerfile:"Dockerfile", url:managedServiceDocker, source_tag:serviceGitDockerBranchWithSha, tags:[serviceGitDockerBranchWithSha, getVersionStdout]]
+            assert managedServiceDocker
+            def credentials = null
+            if (managedServiceDocker ==~ /.*artifactory\.jiff\.ops.*/) {
+                credentials = "artifactory"
+            } else if (managedServiceDocker ==~ /.*artifactory\.castlighthealth\.com.*/) {
+                credentials = "artifactory-denver"
+            }
+        
+  docker.withRegistry(registry, credentials) {
+  
+                                def tags = [serviceGitDockerBranchWithSha, getVersionStdout]
+                                def sourceTag = serviceGitDockerBranchWithSha
+
+                                // push builder tags
+                                if (fileExists("builders.txt")) {
+                                    def builders = readFile("builders.txt").trim().split("\n")
+                                    for (builder in builders) {
+                                        if (builder.size() > 0) {
+                                            def image = docker.image("${imageName}-${builder}:${sourceTag}")
+
+                                            for (tag in tags) {
+                                                if (tag == null || tag == "") {
+                                                    continue
+                                                }
+
+                                                image.push(tag)
+
+                                                if (tag == 'master' || tag == 'dev') {
+                                                  image.push('latest')
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // push run image tags
+                                def image = docker.image("${imageName}:${sourceTag}")
+
+                                for (tag in tags) {
+                                    if (tag == null || tag == "") {
+                                        continue
+                                    }
+
+                                    image.push(tag)
+
+                                    if (tag == 'master' || tag == 'dev') {
+                                      image.push('latest')
+                                    }
+                                }
+                            
+  } // docker.withRegistry
+} // if
+} // stage
+
+  } // lock on "auto-"+managedServiceName+"-"+serviceGitCommit
+
+getDockerComposeYmlStdout = null
+stage("Run get_docker_compose_yml") {
+if ((true == true || true == 'true') && !(skipDeployStdout == true || skipDeployStdout == 'true' )) {
+  withEnv(["DOCKER_COMPOSE_FILENAME=" + null, "DOCKER_COMPOSE_DIR=" + "service_git"]) {
+  try {
+  def cmd = """DOCKER_COMPOSE_PATH="\${DOCKER_COMPOSE_DIR}/docker-compose.yml"
+
+if [ "\${DOCKER_COMPOSE_FILENAME}" != "null" ]; then
+  DOCKER_COMPOSE_PATH="\${DOCKER_COMPOSE_DIR}/\${DOCKER_COMPOSE_FILENAME}"
+else
+  if [ -f "\${DOCKER_COMPOSE_DIR}/docker-compose.kubernetes.yml" ]; then
+    DOCKER_COMPOSE_PATH="\${DOCKER_COMPOSE_DIR}/docker-compose.kubernetes.yml"
+  fi
+fi
+
+cat \${DOCKER_COMPOSE_PATH} > values.yaml
+"""
+  getDockerComposeYmlStdout = sh(returnStdout: true, script: cmd).trim()
+  echo getDockerComposeYmlStdout
+  } finally {
+  }
+  } // withEnv
+} // if
+} // stage
+
+printDockerUrlStdout = null
+stage("Run print_docker_url") {
+if ((true == true || true == 'true') && !(skipDeployStdout == true || skipDeployStdout == 'true' )) {
+  withEnv(["URL=" + managedServiceDocker, "TAG=" + serviceGitDockerBranchWithSha]) {
+  try {
+  def cmd = "echo \"\${URL}:\${TAG}\""
+  printDockerUrlStdout = sh(returnStdout: true, script: cmd).trim()
+  echo printDockerUrlStdout
+  } finally {
+  }
+  } // withEnv
+} // if
+} // stage
+
+stage("Helm upgrade") {
+if ((true == true || true == 'true') && !(skipDeployStdout == true || skipDeployStdout == 'true' )) {
+  
+                def envObj = Environments.getEnvironment(params.ENV)
+                def helmArgs = """--debug --install --wait ${envCharts.docker_compose ? "--version \"${envCharts.docker_compose}\"" : ""} --values ${"values.yaml"} --set monitoringTags.team="${managedServiceTeam.toString().replaceAll("[\n\r]", '\n')}" --set jenkins.env="${params.ENV.toString().replaceAll("[\n\r]", '\n')}" --set jenkins.image="${printDockerUrlStdout.toString().replaceAll("[\n\r]", '\n')}" --set jenkins.revision="${serviceGitDockerBranchWithSha.toString().replaceAll("[\n\r]", '\n')}" --set ha_env="${envHA.toString().replaceAll("[\n\r]", '\n')}" --set haSettings.cpuResourceTobeReducedByPortion="${envcpuDownScalingFactor.toString().replaceAll("[\n\r]", '\n')}" --set kubernetesDomain=${envObj.kubeDomain(managedServiceCluster.name,env)} --set ingressPrefix=${envObj.ingressPrefix(managedServiceCluster.name)}"""
+                if(envVars) {
+                    envVars.each { k, v ->
+                        helmArgs = helmArgs + " --set jenkins.env_vars.${k}=${v}"
+                    }
+                }
+
+                if (params.FORCE_RESTART) {
+                    helmArgs = helmArgs + " --set restartedAt=${utils.getCurrentTime()}"
+                }
+                envObj = null
+
+                insideKubernetesCluster(params.ENV,managedServiceCluster.name) {
+
+                  def helmTimeout = "10m0s"
+                  if (env.HELM2 == 'true' || managedServiceCluster.name == 'aws') {
+                    helmTimeout = "600"
+                  }
+                  helmArgs = helmArgs + " --timeout ${helmTimeout}"
+
+                  // Wait for tiller to be in ready state
+                  timeout(time: 60, unit: 'SECONDS') {
+                    waitUntil {
+                      def r = sh script: "helm list " + "predictor-service", returnStatus: true
+                      return (r == 0)
+                    }
+                  }
+
+                  if (params.REINSTALL) {
+                    sh "helm delete --purge " + "predictor-service" + " || true"
+                  }
+                  def script = """helm upgrade ${helmArgs}""" + " " + "predictor-service" + " " + "jiff/docker-compose"
+                  sh script
+                } // insideKubernetesCluster
+            
+} // if
+} // stage
+
+stage("Service Update Status") {
+if ((true == true || true == 'true') && !(skipDeployStdout == true || skipDeployStdout == 'true' )) {
+  
+                    def serviceName = "predictor-service"
+                    def serviceEnv = params.ENV
+                    def serviceObject = Services.getService(serviceName)
+                    if (serviceObject == null) {
+                      error("Service '${serviceName}' not found in deploy-environment repo for '${serviceEnv}' environment")
+                    }
+                    envStatus = [
+                      deployedBranch: params.BRANCH,
+                      deployedBranchWithSha: serviceGitDockerBranchWithSha
+                    ]
+                    serviceObject.updateEnvStatus(serviceEnv, envStatus)
+
+
+                    def branch = serviceEnv
+                    def envParams = serviceObject.getEnvParams(serviceEnv)
+                    def groupName = envParams.group ?: 'environment'
+                    def statusFileName = "status/${groupName}.yml"
+          
+                    def status = serviceObject.getEnvStatus(serviceEnv)
+                    if (status) {
+                        lock("update-environment-branches") {
+                            dir('deploy-environment') {
+                                git url: "git@github.com:JIFFinc/deploy-environment.git", credentials: 'jiff-infrastructure', branch: branch
+                    
+                                def yaml = [services: [:]]
+                                if (fileExists(statusFileName)) {
+                                  yamlBody = readFile(statusFileName)
+                                  yaml = jiff.parseYaml(yamlBody)
+                                }
+                    
+                                yaml.services[serviceObject.name] = status
+                    
+                                writeFile file: statusFileName, text: jiff.mapToYaml(yaml)
+                    
+                                // remove this service from any other file to avoid duplicates
+                                def statusFiles = findFiles(glob: 'status/*.yml')
+                                statusFiles.each { fileWrapper ->
+                                  if(fileWrapper.name != "${groupName}.yml") {
+                                    yamlBody = readFile(fileWrapper.path)
+                                    yaml = jiff.parseYaml(yamlBody)
+                                    if(yaml.services[serviceObject.name]) {
+                                      yaml.services.remove(serviceObject.name)
+                                      writeFile file: fileWrapper.path, text: jiff.mapToYaml(yaml)
+                                    }
+                                  }
+                                }
+                
+                                sh("""
+                                    git add -A status/*.yml
+                                    if [[ ! -z "\$(git status --porcelain)" ]] ; then
+                                        git commit -m 'Updating status of ${serviceName}'
+                                        git push origin ${branch}
+                                    fi
+                                """)
+                            }
+                        }
+                    } else {
+                      error "Status unknown. Service '${serviceName}' never deployed to env '${serviceEnv}'."
+                    }
+
+                
+} // if
+} // stage
+
+devopsGitCommit = null
+devopsGitBranch = null
+devopsGitBranchWithSha = null
+devopsGitDockerBranch = null
+devopsGitDockerBranchWithSha = null
+stage("Git checkout") {
+if ((true == true || true == 'true') && !((((skipDeployStdout == "true")) || ((managedServiceWikiProject == null))) == true || (((skipDeployStdout == "true")) || ((managedServiceWikiProject == null))) == 'true' )) {
+dir("devops_git") {
+  
+                                try {
+                                    checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:JIFFinc/devops.git"]], branches: [[name: 'refs/remotes/origin/' + "master"]]], changelog: true, poll: false
+                                } catch (err) {
+                                    try {
+                                        checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:JIFFinc/devops.git"]], branches: [[name: 'refs/tags/' + "master"]]], changelog: true, poll: false
+                                    }
+                                    catch (err1) {
+                                        throw new Exception("Unable to find branch or tag named: '" + "master" +  "'")
+                                    }
+                                }                                           
+                                    
+  sh('git submodule update --init --remote || true')
+  devopsGitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().substring(0,7)
+  devopsGitBranch = "master"
+  devopsGitBranchWithSha = devopsGitBranch + "-" + devopsGitCommit
+  devopsGitDockerBranch = "master".replaceAll('/', '-')
+  devopsGitDockerBranchWithSha = devopsGitDockerBranch + "-" + devopsGitCommit.replaceAll('/', '-')
+  
+                                   if(sh(returnStdout: true, script: 'git tag -l ' + "master").trim() == "master" || "master".startsWith("release")) 
+                                   {
+                                     devopsGitBranchWithSha = "master"
+
+                                     if(devopsGitDockerBranch.endsWith(devopsGitCommit)) {
+                                        devopsGitDockerBranchWithSha = devopsGitDockerBranch
+                                     }
+                                   }
+                                
+} // dir
+} // if
+} // stage
+
+updateWikiStdout = null
+stage("Run update_wiki") {
+if ((true == true || true == 'true') && !((((skipDeployStdout == "true")) || ((managedServiceWikiProject == null))) == true || (((skipDeployStdout == "true")) || ((managedServiceWikiProject == null))) == 'true' )) {
+  withEnv(["APP_NAME=" + managedServiceName, "WIKI_NAME=" + managedServiceWikiName, "PROJECT=" + managedServiceWikiProject, "VERSION=" + serviceGitDockerBranchWithSha, "ENV=" + params.ENV]) {
+  insideDockerImage("ops.artifactory.jiff.ops/jiff/python", "latest") {
+dir("devops_git") {
+  try {
+  def cmd = """scripts/util/dev/python/updateConfluence.py -a \${WIKI_NAME} -p \${PROJECT} -b \${VERSION} --\${ENV}
+"""
+  updateWikiStdout = sh(returnStdout: true, script: cmd).trim()
+  echo updateWikiStdout
+  } finally {
+  }
+} // dir
+  } // insideDockerImage
+  } // withEnv
+} // if
+} // stage
+            } // slackNotifier
+        
+        
+            } // node
+        stage("Run run_tests") {
+if ((true == true || true == 'true') && !((((skipDeployStdout == "true")) || (true) || (!((params.ENV == false)))) == true || (((skipDeployStdout == "true")) || (true) || (!((params.ENV == false)))) == 'true' )) {
+  def parallelNodes = [:]
+  
+                             parallelNodes[false] = {
+                                 build(job: false, parameters: [[$class: "StringParameterValue", name: 'ENV', value: params.ENV], [$class: "StringParameterValue", name: 'TRIGGEREDBYBRANCH', value: params.BRANCH], [$class: "StringParameterValue", name: 'TRIGGEREDBYSERVICE', value: "predictor-service"]], wait: true)
+                                 println("Build " + false + " succeeded")
+                             }
+                          
+  parallel parallelNodes
+} // if
+} // stage
+
