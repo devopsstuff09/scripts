@@ -37,3 +37,7 @@ ssh -p 3389 $i sudo -u root  df -h
 done
 exit 0
 
+#######uptime###########
+for i in `cat /root/hostfile-seg`; do echo "---- $i ----"; uptime $i; done
+
+
