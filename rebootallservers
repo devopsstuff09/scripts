@@ -1,0 +1,39 @@
+1. cat seg_servers_maint_on.sh
+
+#!/bin/bash
+#
+for i in `cat /root/hostfile-seg`
+do 
+echo "---- $(date) -- $i ---"
+## BEFORE MAINTENANCE STEPS - BEFORE REBOOT ####
+ssh -p 3389 $i sudo -u root  cat  /etc/fstab.maint_off
+ssh -p 3389 $i sudo -u root  cp -fp /etc/fstab.maint_on /etc/fstab
+ssh -p 3389 $i sudo -u root  cat /etc/fstab
+ssh -p 3389 $i sudo -u root  shutdown -r now
+done
+exit 0
+
+PING test for servers
+
+#!/bin/bash
+##TEST PING AFTER SEG SERVERS REBOOT#### 
+echo "---- $(date) -- $i ---"
+for i in `cat /root/hostfile-seg`; do echo "---- $i ----"; ping $i -c 1; done
+exit 0
+
+
+######
+
+#!/bin/bash
+#
+for i in `cat /root/hostfile-seg`
+do 
+echo "---- $(date) -- $i ---"
+####AFTER REBOOT STEPS#######
+#ssh -p 3389 $i sudo -u root  cp -fp /etc/fstab.maint_off  /etc/fstab
+ssh -p 3389 $i sudo -u root  cat /etc/fstab
+ssh -p 3389 $i sudo -u root  mount -a
+ssh -p 3389 $i sudo -u root  df -h
+done
+exit 0
+
