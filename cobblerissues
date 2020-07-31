@@ -1,0 +1,22 @@
+1) Vlan of vm and server u r booting has to be checked and nic of that vlan should be enabled on cobbler machine
+
+2) cobbler seetings
+[root@den-cobbler01 scripts]# cat /etc/cobbler/settings| grep 10.11.86
+next_server: 10.11.86.115
+server: 10.11.86.115
+[root@den-cobbler01 scripts]# 
+
+3)IMPORTAT we have to check nic (macaddress) from vmware  side and place it in concernn vlan and we have to check the hypervisor is also having that vlan ennnabled or elase move the hypesvisor where vlan is avaliable
+
+4)F12 for pxe
+   f2 for channging the settings
+   
+ 
+cmds
+cobbler system list
+
+service cobblerd  status
+
+cobbler system remove --name den-ci-runner01-mig
+
+
