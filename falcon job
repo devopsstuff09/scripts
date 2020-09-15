@@ -1,0 +1,242 @@
+#!/usr/bin/env groovy
+
+environment {
+        PATH="/usr/bin/python:$PATH"
+        PYTHONPATH="$WORKSPACE"
+    }
+
+pipeline{
+   agent any
+
+stages   {
+
+stage ('Deploy_Ventana_Ikkuna_denqa01') {
+         steps  {
+           Deploy_Ventana_Ikkuna('den-qa01-web01')
+           }
+           }
+stage ('restart_apache_denqa01') {
+         steps  {
+           restart_apache('den-qa01-web01')
+           }
+           }
+stage ('load_pantry') {
+         steps  {
+           build job: 'load_and_validate_pantry_(denqa01)'
+           }
+           }
+stage ('load_exceptions_denqa01') {
+         steps  {
+           load_exceptions('den-qa01-db01')
+           }
+           }
+stage ('deploy_sysconfig_service_denqa01') {
+         steps  {
+           deploy_sysconfig_service('den-qa01-soa01')
+           }
+           }
+stage ('validate_sysconfig_service_denqa01') {
+         steps  {
+           validate_sysconfig_service('den-qa01-soa01')
+           }
+           }
+stage ('deploy_configurator_service_denqa01') {
+         steps  {
+           deploy_configurator_service('den-qa01-soa01')
+           }
+           }
+stage ('validate_configurator_service_denqa01') {
+         steps  {
+           validate_configurator_service('den-qa01-soa01')
+           }
+           }
+stage ('falcon_deploy_soa_denqa01') {
+         steps  {
+	    retry(2) {
+           falcon_deploy_soa('den-qa01-soa01')
+           }
+	   }
+           }
+
+stage ('falcon_validate_soa_service_startup_denqa01') {
+         steps  {
+           falcon_validate_soa_service_startup('den-qa01-soa01')
+           }
+           }
+stage ('restart_pricing_service') {
+         steps  {
+           restart_pricingService('den-qa01-soa01')
+	   }
+           }
+stage ('Deploy_Standard_Service_denqa01') {
+         steps  {
+           Deploy_Standard_Service('den-qa01-soa01')
+           }
+           }
+stage ('deploy_saturn_denqa01') {
+         steps  {
+           deploy_saturn('den-qa01-soa01')
+           }
+           }
+stage ('deploy_phoenix_denqa01') {
+         steps  {
+           deploy_phoenix('den-qa01-soa01')
+           }
+           }
+stage ('vendor_clearing_script_qa01') {
+         steps  {
+           build job: 'vendor_clearing_script_qa01'
+           }
+           }
+      }
+post {
+      aborted {
+        notifyAborted()
+        }
+      failure {
+        notifyFailed()
+        }
+      success {
+        notifySuccess()
+        }
+}
+}
+
+ def Deploy_Ventana_Ikkuna(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+	   python deploy_ventana.py -H ${env} -b $RELEASE_BRANCH
+           python deploy_ikkuna.py -H ${env}"""
+ }
+
+ def restart_apache(String env) {
+     sh """
+           echo ${env}
+           ssh -t -p 3389 devops@${env}  << EOF
+           cd /home/devops
+           sh apache_restart.sh
+           exit
+           EOF"""
+        }
+
+ def load_exceptions(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/DB/bin
+           python load_exceptions.py -n -o ${env} -r ${CURRENT_RELEASE_DATE} -d
+           """
+        }
+
+ def deploy_sysconfig_service(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_soa.py -H ${env} -s sysconfigservice -b $RELEASE_BRANCH -g -f
+           """
+        }
+
+ def validate_sysconfig_service(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python validate_soa_service_startup.py -H ${env} -t 400 -d -s sysconfigservice
+           """
+        }
+
+ def deploy_configurator_service(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_soa.py -H ${env} -s configuratorservice -b $RELEASE_BRANCH -g -f
+           """
+        }
+
+ def validate_configurator_service(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python validate_soa_service_startup.py -H ${env} -t 400 -d -s configuratorservice
+           """
+        }
+ def falcon_deploy_soa(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_soa.py -H ${env} -b $RELEASE_BRANCH -g -f -e $exclude_soa_qa01
+           """
+        }
+        
+ def restart_pricingService(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python manage_soa.py -H ${env} -s pricingservice -o restart -b $RELEASE_BRANCH -d
+           """
+        }
+
+ def falcon_validate_soa_service_startup(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python validate_soa_service_startup.py -H ${env} -t 6000 -e $exclude_soa_qa01,pricingservice
+           """
+        }
+ def Deploy_Standard_Service(String env) {
+	def list= ["employerservice","photouploaderservice","providerdirectoryservice","ssoservice","assetservice","benefitsservice","trackerdataintakeservice","questionnaireservice","edgeservice","jlocalizerservice","reviewsservice","attributeselectorservice","rhiservice","hrsservice","reviewsservice","planservice","drugservice","communityservice","rewardcenterservice","eventservice","apigatewayservice","appointmentservice","contentservice","segmentservice"] 
+	for (item in list){
+        sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_soa.py -H ${env} -s ${item} -j build_release_${item} -b $RELEASE_BRANCH -d -f
+           sleep 30;
+           """
+        }
+ }
+ def deploy_saturn(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_saturn.py -H ${env} -f -a ${CURRENT_SATURN_RELEASE}
+           """
+        }
+
+ def deploy_phoenix(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python deploy_artifactory_sync.py -H ${env} -a phoenix -b release
+           python deploy_phoenix.py -H ${env} -d -t /home/www/phoenix-release
+           """
+        }
+
+ def functional(String env) {
+           sh """#!/bin/bash -e
+           cd /opt/clh/python/devops_tools/current/Deploy/bin
+           python check_functional.py -H denqa01.castlighthealth.com -s 'primary+care+for+adults' -n
+           """
+        }
+
+ def notifyBuild(String buildStatus = 'STARTED') {
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+  def details = """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+  }
+  def notifyFailed() {
+  slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+  }
+  def notifyAborted() {
+  slackSend (color: '#FF0000', message: "ABORTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+  }
+  def notifySuccess() {
+  slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+  }
