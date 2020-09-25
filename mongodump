@@ -1,0 +1,19 @@
+Steps to load revenge pricing mongod data on production:
+============================================
+1.Copy dump from den-smash02-mig(den-smash2-mig:/data/mongo/revenge_db_full/app_rate_tables_nihonium1_20200918_033127.tar.gz) to under /data-28001/staging. (use rsync as it is fast compared to scp). If you are not table to ssh with root add ssh-pub key and start rsync.
+2. service mongod1 stop -- repeat the same on primary, secondary and arbitory nodes
+3. mv /data-28001/mongodb/db /data-28001/mongodb/db-09242020 - repeat the same steps on primary, secondary and arbitory nodes.
+4. mkdir /data-28001/mongodb/db  - repeat the same steps on primary, secondary and arbitory nodes.
+5. On den-prod-pricing01(primary node) -
+tar xvzf /data-28001/staging/app_rate_tables_nihonium1_20200918_033127.tar.gz -C /data-28001/mongodb/db
+6. Once the extract is done - chown -R mongod:mongod /data-28001/mongodb/db
+7. service mongod1 start
+8. Connect to mongo instance and initiate replication - rs.status(); rs.initiate()
+9. Stop primary mongo instance before copy data to replica - service mongod1 stop
+10. time rsync -avhp -e 'ssh -p 22' /data-28001/mongodb/db/ den-prod-pricing02:/data-28001/mongodb/db
+11. Start the MongoDB on both Primary, Secondary & Arbiter instances
+12.After the above step is completed, Add Secondary & Arbiter nodes to the replica set by connecting to MongoDB primary replica set
+ rs.add("den-prod-pricing02:28001")
+rs.addArb("den-prod-pricing03:28001")
+13. Verify the status of MongoDB by connecting to Primary MongoDB instance.
+rs.status()
