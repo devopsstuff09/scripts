@@ -1,0 +1,199 @@
+
+
+
+
+db.mycol.find()                                      /// to list all the table 
+
+db.mycol.find({_id:3, "address.loc":"New ADD"})     /// select id=3 and address.loc=newadd)
+
+db.mycol.find({"address.loc":"New ADD"})           ///select in all documents where address.loc="NeW ADD"
+
+db.mycol.find({$or: [{_id:2}, {"address.street.name":"BAJAR"}]})   ////or operator for checking any of two conditions
+
+db.mycol.find().sort({_id:-1}).limit(2)             /// sort from botton if we use -1
+
+db.mycol.find().sort({_id:1}).limit(3)              /// if we use 1 it will be from top order will sort
+
+ db.mycol.distinct("address.loc")
+[ "New ADD", "jub" ]                                 /// distinct values of that column
+
+
+db.mycol.find({name:{$ne: 'pramati'}})               ///where not equal to some 
+
+db.mycol.find({"address.loc":/^New/})               /// to find some matching in sub doc and ^New is frist char
+
+db                                                  /// to see in which db 
+
+use sai                                             /// it will create db and switch to sai db
+
+show dbs                                           /// will list the dbs but until u create a doc it will not show its name
+
+
+db.newcol.drop()                                   /// this will drop the complete table
+
+db.newcol.remove({})                               /// this will drop the complete table but structure is avaliable eg:show collections
+
+db.newcol.remove({x:2})                            /// this will drop the only row where x=2
+
+use admin
+switched to db admin
+db.shutdownServer()                                 /// this will shut down the mongo DB but we need to be as admin
+
+for(i=1; i<=10000;i++){db.users.insert({_id:i,name:'abc'+i, address: {loc:"Hyd"+i, pin:12345+i}})}    /// to create multiple rows at a time
+
+db.users.count()                                    /// count number of rows
+
+db.users.getIndexes()                              /// to get list of indexes
+
+db.users.find().limit(3)
+
+db.users.find({name:"abc9988"}).explain({execution$stats:true})    /// to see the  processing time of the query
+
+db.users.createIndex({name:-1})                                    //// to create indexes for on the field of name
+
+db.users.find({name:"abc9988"}).explain({execution$stats:true})     //// see the processing time of the query after creating index
+
+DBQuery.shellBatchSize = 100                                        //// by default mongo show only 20 lines of output we need to give it for more rows 
+
+./mongod --replSet pramati -dbpath /dbversity/data1 --logpath logs/mongod1.log --port 27010 --fork
+
+./mongod --replSet pramati -dbpath /dbversity/data2 --logpath logs/mongod2.log --port 27020 --fork
+
+./mongod --replSet pramati -dbpath /dbversity/data3 --logpath logs/mongod3.log --port 27030 --fork
+
+./mongo --port 27010
+
+rs.status()
+
+rs.initiate()
+
+rs.add('localhost:27020')
+
+rs.add('localhost:27030')
+
+
+use ramana
+
+for(i=1; i<=100;i++){db.users.insert({_id:i,name:'abc'+i, address: {loc:"Hyd"+i, pin:12345+i}})}    /// creating table in db
+
+go and see on other port data is readly avaliable
+
+rs.slaveOk()                         /// shows the slave status
+
+show dbs
+
+use ramana
+
+db.users.find().limit(3)
+
+rs.stepDown()/// from primary we have to run this to make other (secondary) as primary
+
+db=connect("localhost:27020")    /// from any of mongo we can connect to other mongo in cluster 
+
+db=connect("ipadressofother:27020")
+
+rs.printReplicationInfo()        /// to see the status oplogosize
+
+rs.printSlaveReplicationInfo()   ///to see the slave lag delay
++++
+
+source: localhost:27020
+	syncedTo: Tue Aug 06 2019 03:15:14 GMT-0400 (EDT)
+	0 secs (0 hrs) behind the primary 
+source: localhost:27030
+	syncedTo: Tue Aug 06 2019 03:15:14 GMT-0400 (EDT)
+	0 secs (0 hrs) behind the primary
+++++++
+
+// on primary
+show dbs
+use local
+
+show tables
+
+db.oplog.rs.find()       /// loginformation 
+
+db.oplog.rs.find().count()
+
+rs.conf()                 /// replication set configuration
+
+var conf = rs.conf()      /// to change as primary
+
+conf.members[0].priority = 0 ///  ""
+
+var newconf = rs.conf()
+pramati:PRIMARY> newconf.members[0].priority = 0
+newconf.members[0].slaveDelay = NumberLong(360)
+rs.reconfig(conf)
+rs.conf()
+
+
+
+
+
+adding arbitary
+mongod --replSet pramati --dbpath /dbversity/arb/ --logpath logs/arb.log --port 27040 --fork
+
+rs.addArb("localhost:27040")
+
+rs.status()
+
+rs.printReplicationinfo()
+
+db.adminCommand({replSetResizeOplog:1,size:1600})
+
+mongoexport --port 27020 -d ramana -c users --type=csv -f '_id,name,address' --out /tmp/export1.csv  /// to take dump of some cols
+
+mongoexport --port 27020 -d ramana -c users --out /tmp/export2.csv                        /// to take  dump of entire table export
+
+mongoimport --port 27030 -d pavan -c new_usr_col  --file=/tmp/export2.csv                 /// to import to db
+
+./mongofiles --port 27010 -d gridfs put /root/mongo/mongodb-linux-x86_64-rhel70-4.0.11/bin/file_example_MP3_700KB.mp3   /// to put audio files
+
+./mongo --port 27010
+
+use gridfs
+
+show tables
+
+db.fs.chunks.count()
+
+db.fs.files.count()
+
+
+./mongofiles --port 27010 -d gridfs get /root/mongo/mongodb-linux-x86_64-rhel70-4.0.11/bin/file_example_MP3_700KB.mp3  /// to get the files from the DB
+
+./mongodump --port 27040 -u root -p pwd --out dump    /// to take backup
+
+./mongorestore --port 27050 dump/  /// to take backup
+
+db.serverCmdLineOpts()  /// to see the default dir path and log files and port
+
+db.currentOp()
+ 
+db.serverStatus()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
