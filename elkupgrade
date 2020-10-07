@@ -1,0 +1,45 @@
+Procdure for upgrade of elastic search
+
+1. Disable shard allocation
+
+
+curl -X PUT "localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": "none"
+  }
+}
+'
+
+2. Stop non-essential indexing and perform a synced flush
+
+
+
+curl -X POST "localhost:9200/_flush/synced"
+
+
+3.https://www.elastic.co/guide/en/elastic-stack-overview/6.5/stopping-ml.html(x-pack check )
+
+
+kill $(cat pid)
+
+4. systemctl stop elasticsearch.service
+
+
+
+Take backup of entire dir
+ [root@den-qa-es01 elasticsearch]# pwd
+/etc/elasticsearch
+[root@den-qa-es01 elasticsearch]# 
+
+
+
+5. Upgrade the package with rpm. Download
+6. Once its done upgrade the plugins
+7. Start the upgraded node
+8. Renable shard allocation
+9. Wait for recover 
+
+Verify 
+
+curl -X PUT "localhost:9200/_snapshot/my_backup1/snapshot_9?wait_for_completion=true"
