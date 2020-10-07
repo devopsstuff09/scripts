@@ -1,0 +1,785 @@
+[root@den-nonphi-elk01 ~]# history 
+    5  ls
+    6  cat 999-output.conf 
+    7  cd /etc/init.d/
+    8  ls
+    9  service redis_6379 restart
+   10  service redis_6379 stop
+   11  ps -ef |grep redis
+   12  kill -9 9396 11229
+   13  service redis_6379 start
+   14  rm -rf /var/run/redis_6379.pid
+   15  service redis_6379 start
+   16  service redis_6380 start
+   17  rm -rf /var/run/redis_6380.pid
+   18  service redis_6380 start
+   19  ps -ef |grep redis
+   20  cd /var/log/logstash
+   21  ls -ltr
+   22  tail -200f logstash-plain.log
+   23  cd /usr/share/logstash/
+   24  ls
+   25  cd data/
+   26  ls
+   27  ls -ltr
+   28  ps -ef |grep kibana
+   29  systemctl restart kibana
+   30  ps -ef |grep kibana
+   31  ps -ef |grep nginx
+   32  cd /var/log/nginx/
+   33  ls -ltr
+   34  tail -200f error.log
+   35  service nginx restart
+   36  ls -ltr
+   37  tail -f error.log
+   38  service elasticsearch stop
+   39  cd /data/nodes/
+   40  ls
+   41  cd 0
+   42  ls
+   43  ls -ltr
+   44  mv indices indices-working 
+   45  mv indices-old indices
+   46  service elasticsearch start
+   47  tail -f /var/log/elasticsearch/den-nonphi-elk.log 
+   48  curl localhost:9200/_cat/indices?v
+   49  tail -f /var/log/elasticsearch/den-nonphi-elk.log 
+   50  curl -X GET "localhost:9200/_cat/indices?v"
+   51  curl -X GET "http://localhost:9200/_cat/indices?v"
+   52  curl -X GET "http://localhost:9300/_cat/indices?v"
+   53  ls
+   54  cd indices
+   55  ls
+   56  cd ..
+   57  curl curl localhost:9200/_cluster/health?pretty
+   58  curl localhost:9200/_cluster/health?pretty
+   59  ls
+   60  ls -ltr
+   61  service elasticsearch stop
+   62  mv indices indices-old; mv indices-working indices; service elasticsearch start
+   63  tail -f /var/log/elasticsearch/den-nonphi-elk.log 
+   64  curl localhost:9200/_cluster/health?pretty
+   65  tail -f /var/log/elasticsearch/den-nonphi-elk.log 
+   66  curl localhost:9200/_cat/nodes?v
+   67  curl localhost:9300/_cat/nodes?v
+   68  curl localhost:9200/_cat/nodes?v
+   69  cat /etc/elasticsearch/elasticsearch.yml 
+   70  cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml-0729
+   71  vi /etc/elasticsearch/elasticsearch.yml
+   72  service elasticsearch restart
+   73  tail -f /var/log/elasticsearch/den-nonphi-elk.log 
+   74  curl localhost:9200/_cat/nodes?v
+   75  history
+   76  curl -X GET "http://localhost:9300/_cat/indices?v"
+   77  curl -X GET "http://localhost:9200/_cat/indices?v"
+   78  curl curl localhost:9200/_cluster/health?pretty
+   79  host den-nonphi-elk01
+   80  curl curl 10.11.80.251:9200/_cluster/health?pretty
+   81  curl 10.11.80.251:9200/_cluster/health?pretty
+   82  history | grep -i get
+   83  curl -X GET "10.11.80.251:9200/_cat/indices?v"|grep logstash
+   84  uptime
+   85  history | grep llen
+   86  /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6379 llen logstash
+   87  /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6380 llen logstash
+   88  service logstash stop
+   89  service logstash2 stop
+   90  service redis_6379 stop
+   91  ps -ef | grep redis
+   92  kill 3990 3997 10284 10393
+   93  ps -ef | grep redis
+   94  kill -9 3990 3997  10284
+   95  ps -ef | grep redis
+   96  host den-nonphi-elk01
+   97  curl -XPOST http://10.11.80.2519200/_flush/synced
+   98  curl -XPOST http://10.11.80.251:9200/_flush/synced
+   99  service elasticsearch stop
+  100  uptime
+  101  reboot 
+  102  uptime
+  103  service kibana stop
+  104  service nginx stop
+  105  service elasticsearch start
+  106  tail -100f /var/log/elasticsearch/den-nonphi-elk.log 
+  107  history | grep -i pretty
+  108  curl curl 10.11.80.251:9200/_cluster/health?pretty
+  109  tail -100f /var/log/logstash/logstash-plain.log 
+  110  service logstash status
+  111  service logstash stop
+  112  service logstash2 stop
+  113  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  114  service logstash start 
+  115  tail -100f /var/log/logstash/logstash-plain.log 
+  116  cd /etc/logstash/conf.d/bkp/
+  117  ls
+  118  cat 999-output.conf
+  119  cat logstash.conf 
+  120  cd ~
+  121  ks
+  122  ls
+  123  tail -100f /var/log/logstash/logstash-plain.log 
+  124  ls
+  125  cd /home/sridhar
+  126  ls
+  127  vi logstash.conf
+  128  diff logstash.conf /etc/logstash/conf.d/logstash.conf 
+  129  vim /etc/logstash/conf.d/logstash.conf 
+  130  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  131  seervice logstash restart
+  132  service logstash restart
+  133  tail -100f /var/log/logstash/logstash-plain.log 
+  134  sourdough-disable-chef --disable
+  135  sourdough-disable-chef --disabled
+  136  sourdough-disable-chef --disable
+  137  clh-sourdough-disable --disable
+  138  clh-sourdough-disable --disabled
+  139  clh-sourdough-disable --disable
+  140  sourdough-disable-chef --disable
+  141  clh-sourdough-disable--disable
+  142  clh-sourdough-disable --disable
+  143  service logstash restart
+  144  tail -100f /var/log/logstash/logstash-plain.log 
+  145  history | grep test
+  146  ls
+  147  cd /etc/logstash/conf.d/
+  148  ls
+  149  mv logstash.conf /home/sseetha
+  150  vi logstash.conf
+  151  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  152  service logstash start
+  153  tail -100f /var/log/logstash/logstash-plain.log 
+  154  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test
+  155  /usr/share/logstash/bin/logstash --help
+  156  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test_and_exit
+  157  cd /usr/share/logstash/logs
+  158  ls
+  159  tail -100f logstash-plain.log 
+  160  locate logstash.yml
+  161  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test_and_exit
+  162  echo $LS_HOME
+  163  locate logstash.runner
+  164  vim /etc/logstash/conf.d/logstash.conf 
+  165  cd /usr/share/logstash/logs
+  166  ls
+  167  cat /dev/null > logstash-plain.log 
+  168  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test_and_exit
+  169  tail -100f logstash-plain.log 
+  170  cp /etc/logstash/conf.d/logstash.conf  /etc/logstash2/conf.d/logstash.conf
+  171  cat /etc/logstash/conf.d/logstash.conf
+  172  vi /etc/logstash/conf.d/logstash.conf 
+  173  cp /etc/logstash/conf.d/logstash.conf /etc/logstash2/conf.d/logstash.conf
+  174  ls -l /etc/logstash/conf.d/logstash.conf
+  175  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test_and_exit
+  176  service logstash start 
+  177  service logstash2 start
+  178  service kibana start
+  179  service redis_6379 status
+  180  ps -ef | grep redis
+  181  service redis_6379 start;
+  182  service redis_6380 start
+  183  ps -ef | grep redis
+  184  history | grep llen
+  185  /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6379 llen logstash
+  186  /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6380 llen logstash
+  187  history | grep prettty
+  188  history | grep pretty
+  189  curl curl 10.11.80.251:9200/_cluster/health?pretty
+  190  history | grep -i get
+  191  curl -X GET "10.11.80.251:9200/_cat/indices?v"|grep logstash
+  192  service kibana restart
+  193  curl -X GET "10.11.80.251:9200/_cat/indices?v"|grep logstash
+  194  export https_proxy=http://squid:squid@den-proxy01:8080
+  195  export http_proxy=http://squid:squid@den-proxy01:8080
+  196  curl -sL https://rpm.nodesource.com/setup_14.x | bash -
+  197  yum upgrade nodejs
+  198  rpm -qa|grep nodejs
+  199  rpm -e --nodeps nodejs
+  200  yum install nodejs
+  201  rpm -e --nodeps npm
+  202  yum install nodejs
+  203  history | grep delete
+  204  history | grep -i domain
+  205  exit
+  206  systemctl status lwsmd
+  207  /usr/bin/domainjoin-cli join --notimesync --ou Sungard-DEN/Linux_Servers/den-prod-elk02 ch.int smundlamuri
+  208  exit
+  209  ps -ef | grep nginx
+  210  exit
+  211  cd /var/www/cache/
+  212  ls -ltrh
+  213  cd ..
+  214  ls -ld cache/
+  215  cd cache/
+  216  ls -ltrh
+  217  cd tmp/
+  218  ls -ltrh
+  219  cd /var/log/nginx/kibana/
+  220  ls -ltrh
+  221  cd ..
+  222  ls -ltrh
+  223  exit
+  224  df -h
+  225  free -g
+  226  history | grep index
+  227  history | grep indices
+  228  curl -X GET "10.11.80.251:9200/_cat/indices?v"
+  229  cat /etc/logstash/conf.d/logstash.conf 
+  230  curl -X GET "10.11.80.251:9200/_cat/indices?v"
+  231  #cat /etc/logstash/conf.d/logstash.conf 
+  232  cd /etc/logstash/conf.d/
+  233  ls
+  234  cd ..
+  235  ls
+  236  cat jvm.options 
+  237  ls
+  238  cat log4j2.properties
+  239  ls
+  240  cat startup.options 
+  241  ls
+  242  cat logstash.yml
+  243  ls
+  244  cd conf.d/
+  245  ls
+  246  cd ..
+  247  ls
+  248  cat startup.options 
+  249  ls
+  250  cd /etc/logstash/
+  251  ls
+  252  locate grok-patterns
+  253  cat /opt/logstash/patterns/grok-patterns
+  254  ls
+  255  cd /etc/logstash/conf.d/
+  256  ls
+  257  cd ..
+  258  ls
+  259  cd /opt/logstash/patterns/
+  260  ls
+  261  cat grok-patterns
+  262  exit
+  263  cd /etc/
+  264  ls -ld logstash
+  265  ls -ld logstash2
+  266  cd /etc/elasticsearch
+  267  ls -ltrg
+  268  cd /opt/logstash/
+  269  ls -ltrh
+  270  cd patterns/
+  271  ls -ltrh
+  272  pwd
+  273  mv dump.rdb /home/sridhar
+  274  cd ..
+  275  ls -ltrh
+  276  cd /home/bkrishna
+  277  ls -ltrh
+  278  mkdir backup
+  279  cd /opt/
+  280  ls -ltrh
+  281  cp -R logstash /home/bkrishna
+  282  cp -R /etc/logstash /home/bkrishna/backup/
+  283  cp -R /etc/logstash2 /home/bkrishna/backup/
+  284  cp -R logstash /home/bkrishna/backup/
+  285  cd /etc/
+  286  ls -ld logstash
+  287  cd logstash
+  288  ls -ltrh
+  289  cd conf.d/
+  290  ls -ltrh
+  291  cat logstash.conf 
+  292  cd
+  293  sourdough-starter 
+  294  cd /home/bkrishna/backup/
+  295  ls -ltrh
+  296  cd /home/bkrishna/backup/
+  297  ls -ltrh
+  298  cd logstash
+  299  ls -ltrh
+  300  cd ..
+  301  ls -ltrh
+  302  mkdir etc-logstash
+  303  cp -R /etc/logstash /home/bkrishna/backup/etc-logstash/
+  304  mv logstash2 etc-logstash/
+  305  ls -ltrh
+  306  cd etc-logstash/
+  307  ls -ltrh
+  308  cd
+  309  cd /etc/elasticsearch
+  310  ls -ltrh
+  311  cd ..
+  312  cp -R elasticsearch /home/bkrishna/backup/
+  313  cd /home/bkrishna/backup/
+  314  ls -ltrh
+  315  cd
+  316  sourdough-starter 
+  317  clh-sourdough-enable --enable
+  318  sourdough-starter 
+  319  cd /etc/logstash
+  320  ls -ltrh
+  321  cd conf.d/
+  322  ls -tlrh
+  323  cd
+  324  cd /opt/logstash/
+  325  ls -ltrh
+  326  cd patterns/
+  327  ls -ltrh
+  328  cd
+  329  cat /etc/knobs/Runlist 
+  330  cat /etc/knobs/Environment 
+  331  sourdough-starter 
+  332  sourdough-disable-chef 
+  333  exit
+  334  date
+  335  sourdough-starter 
+  336  ps -ef | grep chef
+  337  date
+  338  ps -ef | grep chef
+  339  service logstash status
+  340  ps -ef | grep chef
+  341  service logstash status
+  342  cd /opt/logstash/patterns/
+  343  ls -ltrh
+  344  dirr grok-patterns grok-patterns_bkp 
+  345  diff grok-patterns grok-patterns_bkp 
+  346  cd /home/bkrishna
+  347  ls -ltrh
+  348  cd pat
+  349  ls -ltrh
+  350  diff pattern /opt/logstash/patterns/grok-patterns
+  351  diff pattern-old /opt/logstash/patterns/grok-patterns
+  352  ps -ef | grep chef
+  353  sourdough starter
+  354  ps -ef | grep chef
+  355  sourdough 
+  356  sourdough disable-chef
+  357  sourdough disable-chef testing logstashserver cookbook
+  358  history | grep disable
+  359  sourdough disable-chef --disable testing logstashserver cookbook
+  360  sourdough disable-chef --disable testing logstash cookbook
+  361  sourdough disable-chef --disable testinglogstashcookbook
+  362  clh-chef-disable
+  363  clh-chef-disable --disable
+  364  clh-chef-disable --disable disable chef 
+  365  clh-chef-disable --disable disable chef server
+  366  exit
+  367  cd /home/bkrishna
+  368  ls -ltrh
+  369  cd /opt/logstash/patterns/
+  370  ls -ltrh
+  371  mv grok-patterns grok-patterns_20200831
+  372  mv /home/bkrishna/pattern grok-patterns
+  373  ls -ltrh
+  374  chown logstash:logstash grok-patterns
+  375  cd
+  376  service logstash restart
+  377  service logstash status
+  378  service logstash restart
+  379  service logstash status
+  380  cd /etc/logstash
+  381  ls -tlrh
+  382  date
+  383  cd conf.d/
+  384  ls -ltrh
+  385  cd
+  386  cd /opt/logstash/patterns/
+  387  ls -ltrh
+  388  rm -rf grok-patterns
+  389  vim grok-patterns
+  390  ls -ltrh
+  391  chown -R logstash:logstash grok-patterns
+  392  ls -tlrh
+  393  service lgostash restart
+  394  service logstash restart
+  395  service logstash status
+  396  ls -tlrh
+  397  diff grok-patterns grok-patterns_
+  398  diff grok-patterns grok-patterns_bkp 
+  399  diff grok-patterns grok-patterns_20200831 
+  400  diff grok-patterns /home/bkrishna/pattern-old 
+  401  diff grok-patterns /home/bkrishna/logstash/patterns/grok-patterns
+  402  ls -tlrh
+  403  chmod 755 grok-patterns
+  404  service logstash restart
+  405  service logstash status
+  406  tailf -20 /var/log/logstash/logstash-plain-2020-08-30.log 
+  407  date
+  408  service logstash status
+  409  cd
+  410  cd /opt/
+  411  s -ltrh
+  412  ls -tlrh
+  413  cd logstash/
+  414  ls -ltrh
+  415  cd
+  416  cd /etc/logstash
+  417  ls -ltrh
+  418  cd ..
+  419  cd logstash2/
+  420  ls ltrh
+  421  ls -tlrh
+  422  cd
+  423  w
+  424  service logstash status
+  425  cd /etc/kibana
+  426  ls -ltrh
+  427  cd
+  428  history 
+  429  cd /etc/logstash
+  430  ls -ltrh
+  431  cd conf.d/
+  432  ls -ltrh
+  433  cd
+  434  exit
+  435  service kibana restart
+  436  ps -ef | grep kibana
+  437  history 
+  438  cd /etc/logstash
+  439  ls -ltrh
+  440  cd conf.d/
+  441  ls -ltrh
+  442  cd
+  443  cd /opt/
+  444  ls -ltrh
+  445  cd logstash/
+  446  ls -ltrh
+  447  cd patterns/
+  448  ls -ltrh
+  449  cd
+  450  locate kibana
+  451  cd /etc/kibana
+  452  ls -ltrh
+  453  rpm -qa  |grep logstash
+  454  cd
+  455  cat /etc/knobs/Runlist 
+  456  cat /etc/knobs/Environment 
+  457  sourdough startet
+  458  sourdough starter
+  459  cat /etc/chef/disable-chef 
+  460  exit
+  461  tailf -20 /var/log/messages
+  462  cd /var/log/
+  463  ls -ltrh
+  464  tailf -20 chef-starter/chef-run.log
+  465  tailf -20 /var/log/messages
+  466  ps -ef | grep logstash
+  467  date
+  468  cd /opt/logstash/patterns/
+  469  ls -ltrh
+  470  date
+  471  cd
+  472  cd /etc/logstash
+  473  ls -ltrh
+  474  cd
+  475  service logstash status
+  476  tailf -200 /var/log/logstash/logstash-plain.log 
+  477  date
+  478  service logstash status
+  479  tailf -200 /var/log/logstash/logstash-plain.log 
+  480  ps -ef | grep redis
+  481  date
+  482  ps -ef | grep redis
+  483  service logstash status
+  484  tailf -200 /var/log/logstash/logstash-plain.log
+  485  service logstash status
+  486  Need to update OS, Xcode and slack as well
+  487   /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6379 llen logstash
+  488  service logstash status
+  489  tailf -200 /var/log/logstash/logstash-plain.log
+  490  service logstash status
+  491   /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6379 llen logstash
+  492  service logstash status
+  493  tailf -200 /var/log/logstash/logstash-plain.log
+  494  service logstash status
+  495  tailf -200 /var/log/logstash/logstash-plain.log
+  496  service logstash status
+  497  clh-chef-disable --disable chef disable elk
+  498  exit
+  499  clh-chef-enable --enable
+  500  cd /var/log/
+  501  ls -ltrh chef-starter/
+  502  cd
+  503  sourdough starter
+  504  ps -ef | grep chef
+  505  service logstash status
+  506  ps -ef | grep logstash
+  507  service logstash2 status
+  508  service logstash status
+  509  date
+  510  service logstash status
+  511  service logstash restart
+  512  service logstash status
+  513  service logstash restart
+  514  service logstash status
+  515  cd /var/log/logstash/
+  516  ls -lktrh
+  517  tail -100f logstash-plain.log
+  518  ps -ef | grep redis
+  519  service redis_6379 start
+  520  rm -rf /var/run/redis_6379.pid exists
+  521  service redis_6379 start
+  522  ps -ef | grep redis
+  523  service logstash restart
+  524  ps -ef | grep redis
+  525  service logastash status
+  526  service logstash status
+  527  tail -100f logstash-plain.log
+  528  ps -ef | grep redis
+  529  history | grep llen
+  530  /usr/local/bin/redis-cli -h den-nonphi-elk01 -p 6379 llen logstash
+  531  service logstash status
+  532  tail -100f logstash-plain.log
+  533  clh-chef-disable --disable
+  534  service logstash status
+  535  service logstash2 status
+  536  cat /etc/logstash2/conf.d/logstash.conf
+  537  host 10.11.80.251
+  538  service logstash status
+  539  vim /etc/logstash/conf.d/logstash.conf
+  540  vim /etc/logstash/conf.d/logstash.conf +5
+  541  service logstash restart
+  542  tail -100f logstash-plain.log
+  543  history | grep config
+  544  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test
+  545  /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.test_and_exit
+  546  tail -100f /var/log/logstash/logstash-plain.log 
+  547  service logstash status
+  548  tail -100f /var/log/logstash/logstash-plain.log 
+  549  ls
+  550  vim /etc/logstash/conf.d/logstash.conf +5
+  551  tail -100f /var/log/logstash/logstash-plain.log 
+  552  vim /etc/logstash/conf.d/logstash.conf
+  553  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  554  service logstash restart
+  555  tail -100f /var/log/logstash/logstash-plain.log 
+  556  vim /etc/logstash/conf.d/logstash.conf
+  557  service logstash restart
+  558  tail -100f /var/log/logstash/logstash-plain.log 
+  559  vim /etc/logstash/conf.d/logstash.conf
+  560  ls
+  561  cd /etc/logstash/conf.d/
+  562  ls
+  563  mv logstash.conf_BKP logstash.conf
+  564  cp logstash.conf logstash.conf_BKP
+  565  vi logstash.conf
+  566  vim logstash.conf
+  567  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  568  service logstash restart
+  569  tail -100f /var/log/logstash/logstash-plain.log 
+  570  vim logstash.conf
+  571  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  572  service logstash restart
+  573  tail -100f /var/log/logstash/logstash-plain.log 
+  574  ls
+  575  mv logstash.conf logstash.conf_safe
+  576  vim logstash.conf
+  577  host den-nonphi-elk01
+  578  vim logstash.conf
+  579  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  580  service logstash restart
+  581  tail -100f /var/log/logstash/logstash-plain.log 
+  582  vi /etc/logstash/conf.d/logstash.conf
+  583  service logstash status
+  584  cd /etc/cron.daily/
+  585  ls
+  586  cd ..
+  587  cd cron.hourly/
+  588  ls
+  589  cd ..
+  590  cd cron.monthly/
+  591  ls
+  592  cd ..
+  593  ls -la
+  594  exit
+  595  service logstash stop 
+  596  cd /etc/logstash/conf.d/
+  597  ls
+  598  mv logstash.conf logstash.conf_BKP
+  599  ls -l logstash.conf_BKP
+  600  vim logstash.conf
+  601  cp /etc/logstash2/conf.d/logstash.conf /
+  602  cp /etc/logstash2/conf.d/logstash.conf .
+  603  ls
+  604  pwd
+  605  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  606  service logstash start
+  607  tail -100f /var/log/logstash/logstash-plain.log 
+  608  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  609  vim logstash.conf
+  610  tail -100f /var/log/logstash/logstash-plain.log 
+  611  ps -ef | grep redis
+  612  service logstash status
+  613  tail -100f /var/log/logstash/logstash-plain.log 
+  614  service logstash status
+  615  tail -100f /var/log/logstash/logstash-plain.log 
+  616  vi /etc/logstash/conf.d/logstash.conf +5
+  617  vi /etc/logstash/conf.d/logstash.conf
+  618  ls
+  619  cds /etc/logstash/conf.d/
+  620  cd /etc/logstash/conf.d/
+  621  ls
+  622  mv logstash.conf_safe logstash.conf
+  623  mv logstash.conf_BKP /home/sridhar
+  624  cat 999-output.conf
+  625  vi 999-output.conf
+  626  nestat -tlnp | grep redis
+  627  netstat -tlnp | grep redis
+  628  cd /etc/logstash2/conf.d/
+  629  ls
+  630  cd /etc/logstash/conf.d/
+  631  ls
+  632  mv 999-output.conf /home/sridhar/
+  633  mv bkp/ /home/sridhar
+  634  service logstash restart
+  635  tail -100f /var/log/logstash/logstash-plain.log 
+  636  cd /opt/logstash/patterns/
+  637  ls
+  638  vi /etc/logstash/conf.d/logstash.conf +23
+  639  vim /etc/logstash/conf.d/logstash.conf +23
+  640  service logstash restart
+  641  tail -100f /var/log/logstash/logstash-plain.log 
+  642  service logstash stop 
+  643  netstat -ntlp | grep 9000
+  644  ps -ef | grep 20951
+  645  service logstash2 status
+  646  tail -100f /var/log/logstash2/logstash-plain.log 
+  647  service logstash2 stop 
+  648  ps -ef | grep logstash 
+  649  cat /dev/null > /var/log/logstash/logstash-plain.log 
+  650  service logstash start
+  651  tail -100f /var/log/logstash/logstash-plain.log 
+  652  rpm -qa | grep erlastic
+  653  rpm -qa | grep elastic
+  654  rpm -qa | grep logstash
+  655  rpm -qa | grep kibana
+  656  cd /etc/logstash2/
+  657  ls
+  658  ps -ef | grep logstash 
+  659  netstat -ntlp | grep 9000
+  660  service logstash status
+  661  vi /etc/logstash2/
+  662  cd /etc/logstash
+  663  cd /etc/logstash2
+  664  egrep -ir 9000 .
+  665  cd conf.d/
+  666  vi logstash.conf
+  667  cat /dev/null > /var/log/logstash2/logstash-plain.log 
+  668  service logstash2 restart
+  669  tail -100f /var/log/logstash2/logstash-plain.log 
+  670  ls
+  671  cd /home/sridhar/
+  672  ls
+  673  cat 999-output.conf 
+  674  vi 999-output.conf 
+  675  cd /etc/logstash/conf.d/
+  676  ls
+  677  vi logstash.conf 
+  678  service logstash status
+  679  service logstash2 status
+  680  exit
+  681  serice logstash status
+  682  service logstash status
+  683  exit
+  684  cd /etc/logstash
+  685  ls -ltrh
+  686  cd conf.d/
+  687  ls -ltrh
+  688  date
+  689  cat logstash.conf 
+  690  pwd
+  691  ls -ltrh
+  692  cd ..
+  693  cd logstash2/
+  694  ls -ltrh
+  695  d conf.d/
+  696  cd conf.d/
+  697  ls -ltrh
+  698  cat logstash.conf
+  699  vim logstash.conf
+  700  exit
+  701  cd /etc/init.d/
+  702  cd
+  703  ps -ef | grep logstash
+  704  cd /etc/logstash
+  705  ls -ltrh
+  706  cd conf.d/
+  707  ls -ltrh
+  708  cat logstash.conf 
+  709  nslookup 10.11.80.251
+  710  pwd
+  711  exit
+  712  tailf -20 /var/log/messages
+  713  cd /home/bkrishna
+  714  ls -ltrh
+  715  mkdir backup_new
+  716  cd /etc/
+  717  ls -ltrh
+  718  ls -ld logstash*
+  719  cp -R logstash /home/bkrishna/backup_new/
+  720  cp -R logstash2 /home/bkrishna/backup_new/
+  721  cd /opt/
+  722  ls -ld logstash
+  723  cp -R logstash /home/bkrishna/backup_new/
+  724  cd /home/bkrishna/backup_new/
+  725  ls -ltrh
+  726  cd -
+  727  cd
+  728  cd /etc/
+  729  cp -R logstash /home/bkrishna/backup_new/
+  730  cd /home/bkrishna
+  731  ls -ltrh
+  732  cd backup
+  733  ls -ltrh
+  734  cd ..
+  735  cd backup_new/
+  736  ls -ltrh
+  737  cd logstash2/
+  738  ls -ltrh
+  739  cd ..
+  740  cd logstash
+  741  ls -ltrh
+  742  cd ..
+  743  ls -ltrh
+  744  rm -rf logstash
+  745  cp -R /etc/logstash .
+  746  ls -ltrh
+  747  cd logstash
+  748  ls -ltrh
+  749  cd ..
+  750  cd /opt/
+  751  ls -ltrh
+  752  cd /home/bkrishna_n
+  753  cd /home/bkrishna/backup_new/
+  754  ls -ltrh
+  755  mkdir opt
+  756  pwd
+  757  cd 
+  758  cp -R /opt/logstash /home/bkrishna/backup_new/opt/
+  759  cd /home/bkrishna/backup_new/
+  760  ls -ltrh
+  761  cd opt/
+  762  ls -ltrh
+  763  cd logstash/
+  764  ls -ltr
+  765  cd patterns/
+  766  ls -ltrh
+  767  cd
+  768  ps -ef | grep logstash
+  769  cd /var/log/chef-starter/
+  770  ls -ltrh
+  771  cd 
+  772  cd /etc/csa
+  773  cd /etc/castlight/
+  774  ls -ltrh
+  775  cd chef/
+  776  ls -ltrh
+  777  cd failures/
+  778  ls -ltrh
+  779  tailf -200 2020-08-31_11-50-42.fail
+  780  tailf -2000 2020-08-31_11-50-42.fail
+  781  pwd
+  782  history 
+  783  tailf -1000 /var/log/messages
+  784  clh-chef-enable --enable
+  785  sourdough starter
+  786  cd
+  787  cd /etc/logstash
+  788  ls -ltrh
