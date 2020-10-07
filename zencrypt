@@ -1,0 +1,110 @@
+
+https://medium.com/@akshay2gud/creating-multiple-instances-of-mongodb-on-server-and-setting-replication-of-database-5ead59e1e4d4
+
++++
+[root@den-wh01 ~]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/rootvg01-lv02
+                      239G  189G   38G  84% /
+tmpfs                 379G     0  379G   0% /dev/shm
+/dev/sda1             477M  101M  352M  23% /boot
+10.11.21.33:/whshare  3.5T  398G  2.9T  12% /whshare
+/dev/mapper/vghome00-lvhome00
+                     1008G  332G  625G  35% /home
+/dev/mapper/vg--mysqltmp-lv--mysqltmp
+                      246G   60M  234G   1% /mysql-tmp
+10.11.22.22:/data     5.1T  4.0T  1.1T  79% /home/den-sftpuser
+/dev/mapper/data       10T  8.5T  1.6T  85% /data-ssd
+/dev/mapper/zncrypt   6.0T  2.2T  3.5T  40% /zncrypt
+/dev/mapper/backup-pmtables
+                      3.0T  464G  2.4T  17% /backup-pmtables
+[root@den-wh01 ~]# 
+
+++
+1) Take the 'df -h' output and save it in notepad.
+ already taken it:
+
+  [root@den-wh01 rnagandla]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/rootvg01-lv02
+                      239G  189G   38G  84% /
+tmpfs                 379G     0  379G   0% /dev/shm
+/dev/sda1             477M  101M  352M  23% /boot
+10.11.21.33:/whshare  3.5T  397G  2.9T  12% /whshare
+/dev/mapper/vghome00-lvhome00
+                     1008G  332G  625G  35% /home
+/dev/mapper/vg--mysqltmp-lv--mysqltmp
+                      246G   60M  234G   1% /mysql-tmp
+10.11.22.22:/data     5.1T  4.0T  1.1T  79% /home/den-sftpuser
+/dev/mapper/data       10T  8.7T  1.4T  87% /data-ssd
+/dev/mapper/zncrypt   6.0T  2.2T  3.5T  40% /zncrypt
+/dev/mapper/backup-pmtables
+                      3.0T  561G  2.3T  20% /backup-pmtables
+[root@den-wh01 rnagandla]# 
+
+2) login into mysql and execute 'stop slave;';
+3) stop the mysql 'service mysql stop'
+4) Switch to ssherwood user  'su - ssherwood' and then login into mysql 3307 instance 'mysql   -uroot  --socket=/var/run/mysqld/mysqld_3307.sock --port=3307' and confirm the port by executing 'select @@port;' it should give o/p as mentioned below:
+mysql> select @@port;
++--------+
+| @@port |
++--------+
+|   3307 |
++--------+
+1 row in set (0.00 sec)
+   
+
+5) stop the slave by executing 'stop slave;' and then stop the mysql 'mysqladmin   -uroot  --socket=/var/run/mysqld/mysqld_3307.sock --port=3307 shutdown' and then confirm by running 'ps -aef | grep 3307'
+
+6) reboot the OS.
+
+7) once OS comes up then check the 'df -h' and compare with the output of 1st step.
+
+8) Verify the 'zncrypt status -d' it should be 'admin' if not set it to admin by executing the following commands:
+service  zncrypt start
+zncrypt set --mode=admin
+
+Q2S2eJ5F4MYrsRJHgn3XY8h26xWB8Yay  
+3Jd31IXj39261159i3lZ85HF59DM0tXk
+
+above two are the passphrases to set admin mode.
+
+9) start the mysql 3306 and start the replication:
+
+service mysql start
+mysql -e "start slave;"
+mysql -e "show slave status\G" IO_thread_running & SQL_thread_running parameters values should be "Yes".
+
+10) start the mysql 3307 and start the replication:
+
+ a)sudo su
+ b)/usr/bin/mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &
+ c) repeat the 4th step to login into 3307 port.
+ d)start slave; show slave status\G :: IO_thread_running & SQL_thread_running parameters values should be "Yes".
+
+
+ If you get any table got-crash messages for 3306 instance, check the slack channel or mysql-error.log for table names.
+(cat  /var/lib/mysql/mysql-error.log  | grep -i '2019-10' | grep -i ERROR | grep -i crashed)
+
+ then login into mysql :
+
+ and run the following statements:
+ ALTER TABLE <table name;>
+
+restart apache
+
+======
+In the last maintenance we got the table-crash error for the follwing tables.
+
+alter table mysql.user ;
+alter table mysql.db  ;
+alter table mysql.tables_priv  ;
+alter table clh_master.django_session  ;
+alter table clh_master.auth_user  ;
+alter table patient_master_prod.wh_query_audits  ;
+alter table mysql.proc  ;
+alter table patient_master_prod.CHANGELOG  ;
+alter table patient_master_prod.eligibility_qm_employer_specific  ;
+alter table patient_master_prod.eligibility_qm_job_specific  ;
+
+====
