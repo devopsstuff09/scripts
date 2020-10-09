@@ -1,0 +1,18 @@
+echo “- - -” > /sys/class/scsi_host/host0/scan 
+   echo “- - -” > /sys/class/scsi_host/host1/scan 
+   echo “- - -” > /sys/class/scsi_host/host2/scan
+   
+   +++++
+pvcreate /dev/sdb
+vgcreate luksvg01 /dev/sdb
+lvcreate -l+100%FREE -n luksdata01 luksvg01
+echo -n "PAKDo8eC3ZVz8x522CQol4Xy4G5H9u2dgH" | cryptsetup luksFormat /dev/mapper/luksvg01-luksdata01
+echo -n "PAKDo8eC3ZVz8x522CQol4Xy4G5H9u2dgH" | cryptsetup luksOpen /dev/mapper/luksvg01-luksdata01  data
+echo "data /dev/mapper/luksvg01-luksdata01  /root/.luks.key" >> /etc/crypttab
+echo "PAKDo8eC3ZVz8x522CQol4Xy4G5H9u2dgH" > /root/.luks.key
+mkfs.xfs /dev/mapper/data
+echo "/dev/mapper/data /data-ssd                   xfs     nodev,noatime,nobarrier,inode64 0 0" >> /etc/fst
+
+
+
+https://www.dell.com/support/home/us/en/04/drivers/driversdetails?driverId=9MWX9&oscode=naa&productcode=poweredge-R730
