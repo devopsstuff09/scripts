@@ -1,0 +1,58 @@
+[root@den-signoff02 ~]# cat /var/www/disk_clean_cron_scripts_by_NOPS/Remove-soa-release.sh
+#!/bin/bash -p
+#clear
+echo "`date` : -----------------------------------"
+soa_systems_path="/var/www/soa-systems_densignoff02/"
+keep_file_count="3"
+grep_var1="releases"
+grep_var2="releases"
+delete_file_count="0"
+typeset -i Total_files_count=0
+
+#echo "delete_file_count = $delete_file_count"
+for i in `ls -1 $soa_systems_path|grep -v "shared" |grep -v "grep"`
+do
+echo
+Total_files_count=`ls -1tr $soa_systems_path$i/*/* |grep "$grep_var1" |wc -l`
+echo "Total number of files in $i --> $grep_var1 are = $Total_files_count"
+echo
+#ls -1tr $soa_systems_path$i/*/* |grep "$grep_var1"
+#du -sh $soa_systems_path$i/*/* |grep "$grep_var1"
+#echo "Total files count for $i $grep_var1 = $Total_files_count"
+
+#echo -e "\nHow many files you want to remove ?"
+#read -p "Enter an integer value = " delete_file_count
+delete_file_count=$(($Total_files_count - 3))
+
+echo -e "\nNumber of files to be deleted are : $delete_file_count , And the list is \n"
+if [ "$Total_files_count" -gt 2 ]
+then
+echo ""
+#echo "The delete_file_count $delete_file_count gt 2"
+else
+delete_file_count="0"
+fi
+
+for j in `ls -1trd $soa_systems_path$i/*/* |grep "$grep_var1" |head -0$delete_file_count`
+ do
+echo "Removing following file..."
+
+echo date
+
+#echo "delete_file_count value in j loop = $delete_file_count"
+# echo -e "This file is in j loop start"
+#rm -v $j
+#echo " running j loop"
+echo "`date` : -----------------------------------"
+ls -1d $j
+rm -rf $j
+ #echo -e "This line is in j loop end"
+ done
+echo
+echo -e "\n--------------------------------"
+#echo "delte_cile_cont valude =$delete_file_count"
+delete_file_count="0"
+#echo "Now delte_file_count value reset to = $delete_file_count"
+done
+
+[root@den-signoff02 ~]# 
