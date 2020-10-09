@@ -1,0 +1,13 @@
+[root@phx-prod-logstash01 ~]# cat /usr/lib64/nagios/plugins/check_redis_queue.sh
+#!/bin/bash
+first_queue=$(/usr/local/bin/redis-cli llen logstash)
+second_queue=$(/usr/local/bin/redis-cli -p 6380 llen logstash)
+if [[ $first_queue -gt 20000 || $second_queue -gt 20000 ]]
+then
+    echo "6379 port has $first_queue and 6380 port has $second_queue"
+    exit 2
+else
+    echo "OK"
+    exit 0
+fi
+[root@phx-prod-logstash01 ~]# 
