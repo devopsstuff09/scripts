@@ -159,3 +159,16 @@ output {
   }
 } 
 [root@phx-prod-logstash01 ~]# 
+
+
+++++++
+[root@phx-prod-logstash01 conf.d]# cat 999-output.conf 
+output{
+  stdout{codec => dots}
+  redis {
+      port => 
+      data_type => "list"
+      key => "logstash"
+  }
+}
+[root@phx-prod-logstash01 conf.d]# 
