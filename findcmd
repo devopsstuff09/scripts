@@ -1,1 +1,5 @@
 /bin/find /var/www/soa-systems_densignoff02/ -type f -name \*.log\* -mtime +30 -delete
+
+45 23 * * * /bin/find  /var/www/soa-systems_densignoff02/asset/output/work/Assets/phoenix-master* -mtime +2 -delete
+40 23 * * * /bin/find  /var/www/soa-systems_densignoff02/asset/output/work/Assets/engage-master* -mtime +2 -delete
+
