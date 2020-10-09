@@ -1,0 +1,43 @@
+[root@phx-prod-logstash01 ~]# cat /usr/lib64/nagios/plugins/check_redis_cluster.sh
+#!/bin/bash
+# =========For nagios=====
+STATE_OK=0
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+auth=$(awk '/requirepass /{ print $2 }' /etc/redis.conf)
+rediscli="redis-cli"
+[[ $auth ]] && rediscli="redis-cli -a $auth"
+role=$($rediscli info | grep role | cut -d: -f2| awk '{print substr($1, 1, length($1)-1)}')
+if [ "$role" == "slave" ]
+then
+   mls=$($rediscli info | grep master_link_status | cut -d: -f2 | awk '{print substr($1, 1, length($1)-1)}')
+   sro=$($rediscli info | grep slave_read_only | cut -d: -f2 | awk '{print substr($1, 1, length($1)-1)}')
+   mh=$($rediscli info | grep master_host | cut -d: -f2 | awk '{print substr($1, 1, length($1)-1)}')
+   if [[ "$mls" == "up" ]]  && [[ "$sro" == "1" ]]
+   then
+      echo "OK. Slave Redis read only and master ${mh} redis is up"
+      exit ${STATE_OK}
+   else
+      echo "CRITICAL: Slave redis is not connected to master or not marked like read_only"
+      exit ${STATE_CRITICAL}
+   fi
+elif [ "$role" == "master" ]
+then
+   cs=$($rediscli info | grep connected_slaves | cut -d: -f2 | awk '{print substr($1, 1, length($1)-1)}')
+   if [[ "$cs" == "1" ]]
+   then
+      echo "OK. Master redis and one slave connected."
+      exit ${STATE_OK}
+   elif [[ "$cs" == "2" ]]
+   then
+      echo "OK. Master redis and two slaves connected."
+      exit ${STATE_OK}
+   else
+      echo "CRITICAL: Master redis with not slave connected"
+      exit ${STATE_CRITICAL}
+   fi
+else
+  echo "CRITICAL: Redis cluster information is no correct (It's a cluster? redis-cli operative?)"
+  exit ${STATE_UNKNOWN}
+fi
+[root@phx-prod-logstash01 ~]#
