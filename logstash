@@ -1,0 +1,161 @@
+[root@phx-prod-logstash01 ~]# cat /etc/logstash/conf.d/logstash.conf
+input {
+  redis {
+    host => "localhost"
+    port => 6379
+    #type => "redis"
+    data_type => "list"
+    key => "logstash"
+  }
+  redis {
+    host => "localhost"
+    port => 6380
+    type => "redis"
+    data_type => "list"
+    key => "logstash"
+  }
+  tcp {
+    port => "9000"
+    codec => "json"
+    type => "sfmc2"
+  }
+}
+
+
+filter {
+if [type] in "soa" {
+grok {
+match => {
+# NOPS-49189
+#message => "%{servicetime:timestamp}\s*%{DATA:UniqueID}\s*%{LOGLEVEL:severity}\s*%{USERNAME:thread name}\s*(?<message>[A-Za-z].*)" }
+message => "%{servicetime:timestamp}\s*\[%{DATA:UniqueID}\]\s*%{LOGLEVEL:severity}\s*%{USERNAME:thread name}\s*(?<message>[A-Za-z].*)" }
+overwrite => ["message"]
+tag_on_failure => []
+}
+grok {
+match => [
+#NOPS-49189 OpsResponse
+#message, "%{WORD}\s*.\s*(?<OpsType>%{WORD}.%{WORD})\s*%{OpsUI}\s*.\s*(%{INT:req_status})\s*.\s*(OK)\s*.\s*%{FLOATY:OpsDuration:int}(ms)",
+message, "%{WORD}\s*.\s*(?<OpsType>%{WORD}.%{WORD})\s*\(.*\)\s*.\s*%{INT:OpsResponse}\s*.\s*%{DATA}\s*.\s*%{FLOATY:OpsDuration:int}(ms)",
+message, "(r#1-)%{INT}\s(DeliverAte)\s-\s(?<OpAte>(DeliverAte.deliver))\s(method completed in)\s%{FLOATY:AteOpDuration:int}(ms)",
+message, "r.%{INT}.%{INT}\s(ServerRequestLoggingFilter - SmsJobsResourceImpl#dispatch sms)\s\(/sms_jobs/standard\)\s.\s%{INT}\s.\s(?:%{WORD}\s*)*\s(?<phone_number>.%{INT})\s.\s%{INT:OpsDuration:int}(ms)",
+message, "(NcctOperationBase\s*.\s*NCCT\s*request\s*completed\s*in\s*)%{INT:ncctduration}(ms)"
+]
+overwrite => ["message"]
+tag_on_failure => []
+}
+date {
+match => [ "timestamp", "YYY-MM-dd HH:mm:ss.SSS/zzz", "YYY-MM-dd HH:mm:ss.SSS" ]
+timezone => "GMT"
+}
+mutate {
+remove_field => [ "type" ]
+}
+grok {
+match => {
+"path" => "%{UNIXPATH}\/(?<type>(\w|-)+service).log"
+}
+tag_on_failure => []
+}
+if ([message] == ""){
+drop { }
+  }
+ }
+else if [type] in "catalina" {
+grok{
+match => [
+"message", "%{TIME_CAT:timestamp}\s*%{DATA:UniqueID}\s*%{LOGLEVEL:severity}\s*%{USERNAME:thread name}\s*%{GREEDYDATA:message}" ,
+"message", "(?<timestamp>%{CATTY_TIME}|%{TOMMY_TIME})\s*(?<RequestID>RI:\s*%{UUID})\s*%{LOGLEVEL:severity}\s*%{USERNAME:thread}\s*%{GREEDYDATA:message}" ]
+tag_on_failure => []
+}
+date{
+match => [ "timestamp", "yyyy-MM-dd HH:mm:ss,SSS Z", "MMM dd, yyyy HH:mm:ss a" ]
+}
+mutate {
+remove_field => ["type"]
+}
+grok {
+match => {
+#"path" => "%{DATA}\/(?<type>(\w+))\/output"
+"path" => "%{UNIXPATH}\/(?<type>(\w+))\/output"
+}
+}
+
+mutate {
+replace => [ "type", "%{type}-catalina" ]
+           }
+}
+else if [type] in "rails" {
+grok{
+match => {
+#"message" => "\[%{DATA:severity}\]\s*%{epoch}\s*(?<timestamp>%{INT}\s*%{TIME})\s*..\s*%{GREEDYDATA:message}" }
+"message" => "^%{RAILSTIME}\s*%{GREEDYDATA:message}" }
+overwrite => ["message"]
+}
+}
+else if [type] in "apache" {
+grok{
+      match => [ "message", "%{APACHELOG}" ]
+}
+date{
+match => [ "timestamp",  "dd/MMM/YYYY:HH:mm:ss Z" ]
+}
+}
+else if [type] in "hornetq" {
+grok{
+      match => [ "message", "(?<timestamp>%{INT}:%{INT}:%{INT},%{INT}|%{servicetime})\s*%{LOGLEVEL:severity}\s*%{GREEDYDATA:message}" ]
+      overwrite => ["messsage"]
+}
+#date{
+#match => [ "timestamp",  "dd/MMM/YYYY:HH:mm:ss Z" ]
+#}
+}
+else if [type] in "lb" {
+grok{
+   match => [ 
+   "message", "\<%{INT}\>%{INT}\s*(?<timestamp>%{INT}-%{INT}-%{INT}T%{INT}:%{INT}:%{INT}+%{INT}:%{INT})\s*%{HOSTNAME:lb_name}\s*(%{USER:prog}|\s*)\s*(\s|%{INT})\s*(-|%{DATA})\s*(-|%{DATA})\s*%{GREEDYDATA:message}"
+]
+overwrite => ["message"]
+ }
+}
+else if ([type] == "sfmc2") {
+  mutate {
+    convert => { "account_id" => "integer" }
+    convert => { "mail_record_id" => "integer" }
+    convert => { "accepted_requests" => "integer" }
+    convert => { "batch_size" => "integer" }
+  }
+  fingerprint {
+    concatenate_sources => true
+    source => [ "RI","account_id", "mail_record_id"]
+    target => "[@metadata][fingerprint]"
+    method => "MURMUR3"
+    }
+  }
+}
+
+output {
+#stdout{ codec => rubydebug }
+#elasticsearch {
+#hosts => ["10.21.23.31:9200"]
+#    manage_template => true
+    #index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+    #document_type => "%{[@metadata][type]}"
+#template_overwrite => true
+# }
+  if ([type] == "sfmc2") {
+    elasticsearch {
+      hosts => [ "http://localhost:9200" ]
+      index => "sfmc2"
+      document_type => "sfmc2"
+      document_id => "%{[@metadata][fingerprint]}"
+    }
+  } else {
+    elasticsearch
+    {
+      hosts => ["localhost:9200"]
+      template_overwrite => true
+    }
+  }
+} 
+[root@phx-prod-logstash01 ~]# 
