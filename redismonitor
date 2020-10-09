@@ -1,0 +1,37 @@
+[root@phx-prod-logstash01 ~]# cat /usr/lib64/nagios/plugins/redis_monitor.sh
+#!/bin/bash
+#===[ WARNING ]=======================================================
+#Do not edit this scipt
+#Please notify "clhnoc@castlighthealth.com" before any changes to this script
+
+#===[ Summary ]=======================================================
+#This Program checks the status of Redis server though telnet ping PONG
+
+#===[ Reference ]=====================================================
+#NOPS-14303
+#Created By NOPS
+#Created Date : 26-Sep-2014
+#===[ Conventions ]====================================================
+# VARIABLES
+
+var1=""
+search_var1="PONG"
+auth=$(awk '/requirepass /{ print $2 }' /etc/redis.conf)
+
+var1=$({ echo "auth $auth"; echo "ping"; echo "ping"; sleep 1; } | telnet localhost 6379 2>/dev/null)
+
+if [ "$(echo "${var1}" |grep -c "${search_var1}" )" -ge 1 ]
+then
+    #echo "${var1}"
+    echo -e "Redis Up"
+    exit 0
+else
+    #echo "down ${var1}"
+    echo -e "Redis Down"
+    exit 2
+fi
+echo -e "Unknow Error"
+exit 3
+
+#End of script
+[root@phx-prod-logstash01 ~]# 
