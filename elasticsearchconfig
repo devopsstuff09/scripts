@@ -1,0 +1,48 @@
+[root@phx-prod-logstash01 conf.d]# cat /etc/elasticsearch/elasticsearch.yml| grep -v ^#
+ cluster.name: phx-logstash
+ node.name: phx-prod-logstash01
+ path.data: /data/elasticsearch
+ path.logs: /var/log/elasticsearch
+ bootstrap.memory_lock: true
+ node.master: true
+ node.data: true
+ #network.host: 10.21.23.31 
+ network.host: 0.0.0.0
+ http.port: 9200
+ gateway.recover_after_nodes: 1
+ discovery.zen.minimum_master_nodes: 1
+ node.max_local_storage_nodes: 1
+
+
+
+
+ bootstrap.system_call_filter: false
+ xpack.security.enabled: false 
+ thread_pool.bulk.queue_size: 500
+
+
+
+[root@phx-prod-logstash01 conf.d]# 
++++
+cluster and slack intergration
++++
+[root@den-prod-elk01 ~]# cat /etc/elasticsearch/elasticsearch.yml | grep -v ^#
+cluster.name: denprodes
+node.name: den-prod-elk01
+path.data: /data
+path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+node.master: true
+node.data: true
+network.host: 10.11.23.90
+http.port: 9200
+discovery.zen.ping.unicast.hosts: [10.11.23.90,10.11.23.91,10.11.23.92]
+discovery.zen.minimum_master_nodes: 2 
+gateway.recover_after_nodes: 3
+xpack.security.enabled: false
+xpack.notification.slack:
+  account:
+    monitoring:
+      url: https://hooks.slack.com/services/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
+
+[root@den-prod-elk01 ~]# 
