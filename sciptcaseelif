@@ -1,0 +1,45 @@
+#!/bin/bash
+
+case "$1" in
+        start)
+                arg="app_start"
+                ;;
+        stop)
+                arg="app_stop"
+                ;;
+        delete)
+                arg="app_delete"
+                ;;
+        *)
+                echo "you have to provide either start, stop or delete"
+                exit 1
+esac
+
+if [ "$2" == "-f" ]
+then
+          filename="$3"
+          if [ -z $3 ] || [ ! -f $3 ]
+          then
+                  echo "Error: file not found"
+                  echo "Usage: $0 start|stop|delete -f <filename>"
+                  echo "Usage: $0 start|stop|delete <labid>"
+                  exit 5
+          elif [ -f $3 ]
+          then 
+                  command="for i in $(cat $3); do ole labenv2 user-lab do -c $arg $i; done"
+          fi
+elif [ -z $2 ]
+then
+          echo "You have to add either -f and the filename or the LabID."
+  else
+          command="ole labenv2 user-lab do -c $arg $2"
+fi
+   
+if [ $arg == "app_delete" ]
+then 
+        read -p "This command will permanently delete the provided lab(s). Are you sure (y/N)? " confirm
+        [[ $confirm = [Yy]* ]] || exit 1
+fi
+echo "Running $command ... "
+$command
+echo "done."
