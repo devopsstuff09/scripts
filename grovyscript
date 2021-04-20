@@ -1,0 +1,91 @@
+#!/usr/bin/groovy
+
+def call() {
+pipeline {
+
+    agent {
+        node {
+            label 'zode'
+        }
+    }
+
+    parameters {
+        choice(
+            name: 'deployment',
+            choices: 'stage\nprod\nrha',
+       )
+       choice(
+            name: 'language',
+            choices: 'en-US\ncs-CZ\nde-DE\nes-ES\nfr-FR\nhi-IN\nja-JP\nko-KR\npt-BR\nru-RU\nzh-CN\nzh-TW',
+       )
+    }
+
+    environment {
+        TMPDIR = '/mnt/storage/tmp'
+    }
+
+    stages {
+
+        stage('prep') {
+            steps {
+                sh "env"
+            }
+        }
+
+        stage('build_deploy_stage') {
+            when { expression { params.deployment == 'stage' }}
+            steps {
+                sh "rht recurr -d stage -l ${params.language} assemble_xml extract_metadata render_html es_deploy_html"
+                //rocketSend message: "[${params.deployment}]"
+            }
+        }
+        stage('build_deploy_prod_release') {
+            when { 
+                expression { params.deployment == 'prod' }
+                allOf { 
+                    branch 'release/*'
+                }
+            }
+            steps {
+                input message: 'Continue Production Push?', submitter: 'bostrick,rudolfkastl,amadhusu,Mohsin-Hakkim,sapavan'
+                sh "rht recurr -d prod -l ${params.language} assemble_xml extract_metadata render_html es_deploy_html"
+                //rocketSend message: "[${params.deployment}]"
+            }
+        }
+        stage('build_deploy_prod_ea') {
+            when { 
+                expression { params.deployment == 'prod' }
+                allOf { 
+                    branch 'earlyaccess'
+                }
+            }
+            steps {
+                //input message: 'Continue Production Push?', submitter: 'bostrick,rudolfkastl,amadhusu,Mohsin-Hakkim,sapavan,fiona-allen,someth2say,richardallred,aglogows,dkolepp,jimrigsbee,amadeuscc,mweetman-redhat,herve4m,msantacrud,darkaxl,vcostea,eparenti,dallasspohn,ghacker007,acomabon,psolarvi,m-czernek,gjbianco,ebramirez,jramcast,psolarvi,maudemor,rsriniva'
+                sh "rht recurr -d prod -l ${params.language} assemble_xml extract_metadata render_html es_deploy_html"
+                //rocketSend message: "[${params.deployment}]"
+            }
+        }
+        stage('build_deploy_prod_ea_auto') {
+            when { 
+                allOf { 
+                    branch 'earlyaccess'
+                    //Allow list of course skus that support auto-push for EA
+                    expression { env.JOB_URL ==~ /.*(CL260|DO400).*/ }
+                }
+            }
+            steps {
+                sh "rht recurr -d prod -l ${params.language} assemble_xml extract_metadata render_html es_deploy_html"
+            }
+        }
+        stage('build_deploy_rha') {
+            when { expression { params.deployment == 'rha' }}
+            steps {
+                input message: 'Continue RHA Push?', submitter: 'bostrick,rudolfkastl,amadhusu,sapavan'
+                sh "rht recurr -d rha -l ${params.language} assemble_xml extract_metadata render_html es_deploy_html"
+                //rocketSend message: "[${params.deployment}]"
+            }
+        }
+        
+    }
+}
+}
