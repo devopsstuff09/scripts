@@ -1,0 +1,8 @@
+
+
+for i in `cat outofcpu2.txt` ; do kubectl delete pod $i -n  namespace; done
+
+kubectl get deployments -n namespace | grep 2204 | awk '{ print $1}' | xargs kubectl delete deployment -n namespace
+
+
+
